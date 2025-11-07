@@ -13,6 +13,7 @@ import structlog
 from src.config import get_settings
 from src.middleware.cors import setup_cors_middleware
 from src.middleware.security import setup_security_middleware
+from src.middleware.exception_handler import register_exception_handlers
 from src.db.session import init_db
 from src.utils.logging import setup_logging
 
@@ -167,6 +168,9 @@ app = FastAPI(
 # 设置日志
 setup_logging()
 
+# 注册异常处理器
+register_exception_handlers(app)
+
 # 设置中间件
 setup_cors_middleware(app)
 setup_security_middleware(app)
@@ -193,28 +197,6 @@ async def add_process_time_header(request: Request, call_next):
         )
 
     return response
-
-
-# 全局异常处理器
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    """全局异常处理"""
-    logger.error(
-        "未处理的异常",
-        path=request.url.path,
-        method=request.method,
-        error=str(exc),
-        exc_info=True
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "success": False,
-            "error": "服务器内部错误",
-            "message": "请稍后重试，如问题持续请联系管理员"
-        }
-    )
 
 
 # 注册API路由

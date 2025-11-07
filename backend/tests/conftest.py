@@ -11,7 +11,8 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 
 from src.main import app
-from src.db.session import get_db, Base
+from src.db.session import get_db
+from src.models.base import Base
 from src.config import get_settings
 
 # 设置测试环境变量

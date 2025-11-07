@@ -15,13 +15,15 @@ from src.schemas.character import (
     CharacterStats, PopularCharacter, CharacterCreate, CharacterUpdate
 )
 from src.utils.exceptions import (
-    NotFoundError, ValidationException, DatabaseException,
-    to_http_exception
+    NotFoundError, ValidationException, DatabaseException
 )
-from src.utils.logging import LoggerMixin
+from src.schemas.error import (
+    ErrorResponse, ValidationErrorResponse, NotFoundErrorResponse
+)
+import structlog
 
 router = APIRouter()
-logger = LoggerMixin()
+logger = structlog.get_logger(__name__)
 
 
 async def get_character_service(db: AsyncSession = Depends(get_db)) -> CharacterService:
@@ -33,7 +35,12 @@ async def get_character_service(db: AsyncSession = Depends(get_db)) -> Character
     "/",
     response_model=dict,
     summary="获取角色列表",
-    description="支持分页、过滤、排序的角色列表查询"
+    description="支持分页、过滤、排序的角色列表查询",
+    responses={
+        400: {"model": ErrorResponse, "description": "请求参数错误"},
+        422: {"model": ValidationErrorResponse, "description": "数据验证失败"},
+        500: {"model": ErrorResponse, "description": "服务器内部错误"}
+    }
 )
 async def get_characters(
     # 分页参数
@@ -61,65 +68,54 @@ async def get_characters(
     - 支持关键词搜索（名称、描述、称号等）
     - 支持多种排序字段和方向
     """
-    try:
-        # 构建查询参数
-        query_params = CharacterQueryParams(
-            page=page,
-            per_page=per_page,
-            element=element,
-            weapon_type=weapon_type,
-            rarity=rarity,
-            region=region,
-            search=search,
-            sort_by=sort_by,
-            sort_order=sort_order
-        )
+    # 构建查询参数
+    query_params = CharacterQueryParams(
+        page=page,
+        per_page=per_page,
+        element=element,
+        weapon_type=weapon_type,
+        rarity=rarity,
+        region=region,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
 
-        # 获取角色列表
-        characters, total = await character_service.get_character_list(query_params)
+    # 获取角色列表 - 异常会被全局处理器捕获
+    characters, total = await character_service.get_character_list(query_params)
 
-        # 计算分页信息
-        total_pages = (total + per_page - 1) // per_page
-        has_next = page < total_pages
-        has_prev = page > 1
+    # 计算分页信息
+    total_pages = (total + per_page - 1) // per_page
+    has_next = page < total_pages
+    has_prev = page > 1
 
-        return {
-            "success": True,
-            "data": {
-                "characters": [char.to_dict() for char in characters],
-                "pagination": {
-                    "page": page,
-                    "per_page": per_page,
-                    "total": total,
-                    "total_pages": total_pages,
-                    "has_next": has_next,
-                    "has_prev": has_prev
-                }
-            },
-            "message": f"成功获取角色列表，共 {total} 个角色"
-        }
-
-    except ValidationException as e:
-        raise to_http_exception(e)
-    except DatabaseException as e:
-        raise to_http_exception(e)
-    except Exception as e:
-        logger.log_error("获取角色列表失败", error=e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "success": False,
-                "error": "获取角色列表失败",
-                "message": "服务器内部错误，请稍后重试"
+    return {
+        "success": True,
+        "data": {
+            "characters": [char.to_dict() for char in characters],
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "total_pages": total_pages,
+                "has_next": has_next,
+                "has_prev": has_prev
             }
-        )
+        },
+        "message": f"成功获取角色列表，共 {total} 个角色"
+    }
 
 
 @router.get(
     "/{character_id}",
     response_model=dict,
     summary="获取角色详情",
-    description="获取指定角色的完整信息，包括技能和天赋"
+    description="获取指定角色的完整信息，包括技能和天赋",
+    responses={
+        404: {"model": NotFoundErrorResponse, "description": "角色不存在"},
+        422: {"model": ValidationErrorResponse, "description": "参数验证失败"},
+        500: {"model": ErrorResponse, "description": "服务器内部错误"}
+    }
 )
 async def get_character_detail(
     character_id: int = Path(..., gt=0, description="角色ID"),
