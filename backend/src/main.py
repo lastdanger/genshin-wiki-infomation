@@ -46,46 +46,120 @@ async def lifespan(app: FastAPI):
     logger.info("正在关闭API服务...")
 
 
+# API 文档描述
+API_DESCRIPTION = """
+## 原神游戏信息网站 API
+
+提供原神游戏角色、武器、圣遗物、怪物等全方位信息的 RESTful API 服务。
+
+### 主要功能
+
+* **角色管理** - 查询角色信息、技能天赋、推荐配装
+* **武器管理** - 查看武器属性、特效说明、适配角色
+* **圣遗物管理** - 获取套装效果、词条推荐
+* **怪物图鉴** - 了解怪物信息、弱点、对策攻略
+* **数据搜索** - 跨模块的统一搜索功能
+
+### API 特性
+
+* 🚀 高性能异步架构
+* 📊 完整的分页和筛选支持
+* 🔍 强大的搜索功能
+* 📝 标准化的响应格式
+* ⚡ Redis 缓存加速
+* 🛡️ 完善的错误处理
+
+### 认证说明
+
+当前版本为公开 API，无需认证。未来版本可能会添加 API Key 认证。
+
+### 速率限制
+
+* 未认证用户: 100 请求/分钟
+* 认证用户: 1000 请求/分钟
+
+### 技术支持
+
+* 📧 Email: support@genshin-wiki.com
+* 🐛 Issues: https://github.com/lastdanger/genshin-wiki-infomation/issues
+* 📖 文档: https://docs.genshin-wiki.com
+
+### 版本信息
+
+当前版本: **v1.0.0**
+更新日期: 2025-11-07
+"""
+
 # 创建FastAPI应用实例
 app = FastAPI(
     title="原神游戏信息网站 API",
-    description="提供原神角色、武器、圣遗物、怪物等游戏信息的统一查询接口",
+    description=API_DESCRIPTION,
     version="1.0.0",
     docs_url="/api/docs" if settings.environment != "production" else None,
     redoc_url="/api/redoc" if settings.environment != "production" else None,
+    openapi_url="/api/openapi.json",
     lifespan=lifespan,
+    contact={
+        "name": "Genshin Wiki API Support",
+        "url": "https://github.com/lastdanger/genshin-wiki-infomation",
+        "email": "support@genshin-wiki.com"
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT"
+    },
     openapi_tags=[
         {
+            "name": "系统 System",
+            "description": "**系统健康检查和监控**\n\n提供API服务状态、版本信息、健康检查等系统级接口。",
+            "externalDocs": {
+                "description": "了解更多关于系统监控",
+                "url": "https://docs.genshin-wiki.com/system"
+            }
+        },
+        {
             "name": "角色 Characters",
-            "description": "角色基础信息、技能天赋、推荐配装"
+            "description": "**角色信息管理**\n\n获取原神角色的基础信息、技能天赋、命之座、推荐配装等完整数据。支持按元素、武器类型、稀有度等条件筛选。",
+            "externalDocs": {
+                "description": "角色数据说明",
+                "url": "https://docs.genshin-wiki.com/characters"
+            }
         },
         {
             "name": "武器 Weapons",
-            "description": "武器属性、特效、角色推荐"
+            "description": "**武器信息管理**\n\n查看武器的基础属性、副词条、特效说明、适配角色推荐等信息。支持按武器类型、稀有度筛选。",
+            "externalDocs": {
+                "description": "武器数据说明",
+                "url": "https://docs.genshin-wiki.com/weapons"
+            }
         },
         {
             "name": "圣遗物 Artifacts",
-            "description": "圣遗物套装效果、词条推荐"
+            "description": "**圣遗物套装管理**\n\n获取圣遗物套装的效果说明、推荐词条、适配角色等信息。",
+            "externalDocs": {
+                "description": "圣遗物数据说明",
+                "url": "https://docs.genshin-wiki.com/artifacts"
+            }
         },
         {
             "name": "怪物 Monsters",
-            "description": "怪物信息、弱点、对策"
+            "description": "**怪物图鉴**\n\n查询怪物的基础信息、元素属性、弱点、掉落物、对策攻略等。支持按类型、类别筛选。",
+            "externalDocs": {
+                "description": "怪物数据说明",
+                "url": "https://docs.genshin-wiki.com/monsters"
+            }
         },
         {
             "name": "游戏机制 Game Mechanics",
-            "description": "游戏机制说明、攻略指南"
+            "description": "**游戏机制说明**\n\n元素反应、伤害计算、队伍搭配等游戏机制的详细说明和攻略。",
         },
         {
             "name": "图片 Images",
-            "description": "官方图片、用户上传"
+            "description": "**图片资源管理**\n\n角色、武器、圣遗物等的官方图片资源。",
         },
         {
             "name": "搜索 Search",
-            "description": "统一搜索接口"
-        },
-        {
-            "name": "系统 System",
-            "description": "健康检查、状态监控"
+            "description": "**统一搜索接口**\n\n跨模块的全文搜索功能，可同时搜索角色、武器、圣遗物等。",
         }
     ]
 )
