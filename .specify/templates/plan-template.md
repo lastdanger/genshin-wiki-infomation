@@ -27,11 +27,27 @@
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
-## Constitution Check
+## 章程合规检查
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*门控: Phase 0研究前必须通过，Phase 1设计后需要重新检查*
 
-[Gates determined based on constitution file]
+**用户体验检查**:
+- [ ] 操作流程不超过3步？
+- [ ] 页面加载时间<3秒？
+- [ ] 界面使用中文，专业词汇有释义？
+- [ ] 移动端适配？
+
+**数据安全检查**:
+- [ ] 数据传输使用HTTPS？
+- [ ] 不收集游戏账号密码？
+- [ ] 符合《个人信息保护法》？
+- [ ] 用户可以删除个人数据？
+
+**开发规范检查**:
+- [ ] 函数不超过50行？
+- [ ] 有单元测试？
+- [ ] 代码注释使用中文？
+- [ ] 禁用"全面提升"等空话？
 
 ## Project Structure
 

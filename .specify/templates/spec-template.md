@@ -1,37 +1,47 @@
-# Feature Specification: [FEATURE NAME]
+# 功能规格说明: [FEATURE NAME]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
-**Input**: User description: "$ARGUMENTS"
+## 上下文摘要
 
-## User Scenarios & Testing *(mandatory)*
+**功能分支**: `[###-feature-name]`
+**创建时间**: [DATE]
+**状态**: 草稿
+**输入**: 用户描述: "$ARGUMENTS"
+
+**受众**: 新入职的前端/后端/QA/设计同学
+**本功能解决的问题**: [用1-2句话说明这个功能要解决什么具体问题]
+**预期影响**: [说明功能上线后对用户的具体改善]
+
+## 用户场景与测试 *(必填)*
 
 <!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
+  重要: 用户故事按重要性排序 (P1最重要)
+  每个用户故事必须能独立测试 - 即使只实现其中一个，也应该有可用的最小产品
+
+  每个故事应该包含:
+  - 是什么: 用户要完成什么任务
+  - 为什么: 解决用户的什么痛点
+  - 怎么验收: 具体的测试场景
+
+  符合章程要求:
+  - 操作步骤不超过3步
+  - 优先考虑用户隐私和数据安全
+  - 符合当地法律法规
 -->
 
-### User Story 1 - [Brief Title] (Priority: P1)
+### 用户故事1 - [简短标题] (优先级: P1)
 
-[Describe this user journey in plain language]
+**是什么**: [用户要完成什么具体任务，避免技术术语]
+**为什么**: [解决用户的什么痛点，为什么是P1优先级]
+**怎么验收**: [如何独立测试这个功能，具体验收标准]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**测试场景**:
+1. **给定** [初始状态], **当** [用户操作], **那么** [预期结果]
+2. **给定** [初始状态], **当** [用户操作], **那么** [预期结果]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+**隐私安全检查**:
+- [ ] 是否收集用户敏感信息？如是，列出并说明必要性
+- [ ] 数据传输是否加密？
+- [ ] 是否符合《个人信息保护法》？
 
 ---
 

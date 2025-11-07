@@ -1,0 +1,425 @@
+/**
+ * 怪物列表页面样式
+ */
+
+.monster-list-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* 页面头部 */
+.monster-list-page__header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.monster-list-page__header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-description {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+/* 统计信息 */
+.stats-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e74c3c;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.stat-divider {
+  color: #bdc3c7;
+  font-size: 1.2rem;
+}
+
+/* 加载状态 */
+.monster-list-page__loading {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+/* 错误状态 */
+.monster-list-page__error {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.error-message {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-message h3 {
+  margin: 0 0 1rem 0;
+  color: #e74c3c;
+  font-size: 1.3rem;
+}
+
+.error-message p {
+  margin: 0 0 1.5rem 0;
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+
+/* 过滤器区域 */
+.monster-list-page__filters {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem 0;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filters-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: 2fr repeat(5, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group--search {
+  grid-column: span 2;
+}
+
+.filter-group--actions {
+  display: flex;
+  align-items: center;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-input,
+.filter-select {
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.search-input {
+  width: 100%;
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-clear {
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+}
+
+/* 结果信息 */
+.monster-list-page__results-info {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+}
+
+.results-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+.results-count {
+  color: #4a5568;
+}
+
+.search-query {
+  color: #e74c3c;
+}
+
+/* 内容区域 */
+.monster-list-page__content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* 怪物网格 */
+.monster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* 分页 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-weight: 600;
+  color: #4a5568;
+  margin: 0 1rem;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.empty-state-content {
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+
+.empty-state-content h3 {
+  margin: 0 0 1rem 0;
+  color: #64748b;
+  font-size: 1.3rem;
+}
+
+.empty-state-content p {
+  margin: 0 0 2rem 0;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* 加载指示器 */
+.loading-indicator {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .filters-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .filter-group--search {
+    grid-column: span 1;
+  }
+
+  .monster-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .monster-list-page__header {
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .monster-list-page__header h1 {
+    font-size: 2rem;
+  }
+
+  .stats-summary {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .monster-list-page__filters {
+    padding: 1rem 0;
+  }
+
+  .filters-container {
+    padding: 0 0.5rem;
+  }
+
+  .monster-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .pagination {
+    margin: 1rem 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .pagination-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .pagination-info {
+    margin: 0 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .results-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .monster-grid {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .pagination-info {
+    margin: 0;
+  }
+
+  .empty-state-content {
+    margin: 0 1rem;
+    padding: 2rem 1rem;
+  }
+}

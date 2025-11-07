@@ -1,0 +1,85 @@
+# Dependabot 配置文件
+# 自动检测并创建依赖更新 PR
+
+version: 2
+updates:
+  # Backend Python 依赖
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "⚙️ backend"
+      - "type: enhancement"
+    commit-message:
+      prefix: "[Backend]"
+      include: "scope"
+    reviewers:
+      - "lastdanger"
+    assignees:
+      - "lastdanger"
+    # 自动更新策略
+    allow:
+      - dependency-type: "all"
+    # 忽略特定包
+    ignore:
+      # - dependency-name: "package-name"
+      #   versions: ["1.x", "2.x"]
+
+  # Frontend NPM 依赖
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "🎨 frontend"
+      - "type: enhancement"
+    commit-message:
+      prefix: "[Frontend]"
+      include: "scope"
+    reviewers:
+      - "lastdanger"
+    assignees:
+      - "lastdanger"
+    # 版本更新策略
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "all"
+    # 分组更新 (减少 PR 数量)
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@testing-library/*"
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions 依赖
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "🔧 infrastructure"
+      - "type: enhancement"
+    commit-message:
+      prefix: "[CI]"
+      include: "scope"

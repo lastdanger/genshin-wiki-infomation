@@ -1,0 +1,139 @@
+name: Issue Auto Labeler
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  label-issue:
+    name: Auto Label Issue
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Label based on issue content
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const labels = [];
+
+            // 优先级标签
+            if (title.includes('[p0]') || body.includes('critical') || body.includes('urgent')) {
+              labels.push('priority: critical');
+            } else if (title.includes('[p1]') || body.includes('high priority')) {
+              labels.push('priority: high');
+            } else if (title.includes('[p2]')) {
+              labels.push('priority: medium');
+            } else if (title.includes('[p3]')) {
+              labels.push('priority: low');
+            }
+
+            // 类型标签
+            if (title.includes('bug') || title.includes('fix') || body.includes('bug')) {
+              labels.push('type: bug', '🐛 bug');
+            } else if (title.includes('feature') || title.includes('feat') || body.includes('feature request')) {
+              labels.push('type: feature', '✨ feature');
+            } else if (title.includes('enhancement') || title.includes('improve')) {
+              labels.push('type: enhancement', '📈 enhancement');
+            } else if (title.includes('docs') || title.includes('documentation')) {
+              labels.push('type: documentation', '📝 documentation');
+            } else if (title.includes('test')) {
+              labels.push('type: test', '🧪 test');
+            } else if (title.includes('refactor')) {
+              labels.push('type: refactor', '🔄 refactor');
+            } else if (title.includes('performance') || title.includes('perf')) {
+              labels.push('type: performance', '🚀 performance');
+            }
+
+            // 模块标签
+            if (title.includes('[character]') || title.includes('character')) {
+              labels.push('module: character', '🎭 character');
+            }
+            if (title.includes('[weapon]') || title.includes('weapon')) {
+              labels.push('module: weapon', '⚔️ weapon');
+            }
+            if (title.includes('[artifact]') || title.includes('artifact')) {
+              labels.push('module: artifact', '💎 artifact');
+            }
+            if (title.includes('[monster]') || title.includes('monster')) {
+              labels.push('module: monster', '👾 monster');
+            }
+            if (title.includes('[gallery]') || title.includes('gallery') || title.includes('image')) {
+              labels.push('module: gallery', '🖼️ gallery');
+            }
+            if (title.includes('[game mechanic]') || title.includes('game mechanic')) {
+              labels.push('module: game mechanics', '📚 game mechanics');
+            }
+
+            // 前后端标签
+            if (title.includes('[frontend]') || body.includes('frontend')) {
+              labels.push('🎨 frontend');
+            }
+            if (title.includes('[backend]') || body.includes('backend')) {
+              labels.push('⚙️ backend');
+            }
+            if (title.includes('[database]') || body.includes('database')) {
+              labels.push('🗄️ database');
+            }
+            if (title.includes('[infrastructure]') || body.includes('infrastructure') || body.includes('ci/cd')) {
+              labels.push('🔧 infrastructure');
+            }
+
+            // 特殊标签
+            if (body.includes('good first issue') || title.includes('beginner')) {
+              labels.push('good first issue');
+            }
+            if (body.includes('help wanted') || title.includes('help wanted')) {
+              labels.push('help wanted');
+            }
+            if (body.includes('blocked') || title.includes('blocked')) {
+              labels.push('blocked');
+            }
+            if (body.includes('security') || title.includes('security') || title.includes('vulnerability')) {
+              labels.push('🔐 security');
+            }
+
+            // 添加标签
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }
+
+      - name: Add comment for new issues
+        uses: actions/github-script@v7
+        if: github.event.action == 'opened'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+
+            const comment = `👋 感谢提交 Issue!
+
+我们已经自动为这个 Issue 添加了标签。开发团队会尽快查看并回复。
+
+**下一步:**
+- 请确保提供了足够的信息来重现问题(如果是 bug)
+- 或者详细描述了新功能的需求(如果是 feature)
+- 可以添加截图、日志等补充信息
+
+**贡献指南:** 如果你想自己解决这个问题,欢迎提交 PR!
+
+---
+🤖 此消息由 GitHub Actions 自动发送`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: comment
+            });

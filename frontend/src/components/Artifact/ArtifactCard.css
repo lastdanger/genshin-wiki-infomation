@@ -1,0 +1,378 @@
+/**
+ * 圣遗物卡片样式
+ */
+
+.artifact-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  min-height: 340px;
+  cursor: pointer;
+}
+
+.artifact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.artifact-card:hover .artifact-card__hover-info {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* 图标区域 */
+.artifact-card__icon {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.artifact-card__icon-placeholder {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.artifact-card__slot-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* 稀有度星级 */
+.artifact-card__rarity {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* 稀有度颜色 */
+.artifact-card.rarity-3 .artifact-card__icon {
+  background: linear-gradient(135deg, #b3d9ff 0%, #7fc7ff 100%);
+}
+
+.artifact-card.rarity-4 .artifact-card__icon {
+  background: linear-gradient(135deg, #e6b3ff 0%, #d47fff 100%);
+}
+
+.artifact-card.rarity-5 .artifact-card__icon {
+  background: linear-gradient(135deg, #ffe6b3 0%, #ffcc66 100%);
+}
+
+.artifact-card.rarity-3 .artifact-card__rarity {
+  background: linear-gradient(135deg, #4a90e2, #2171b5);
+}
+
+.artifact-card.rarity-4 .artifact-card__rarity {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+}
+
+.artifact-card.rarity-5 .artifact-card__rarity {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* 信息区域 */
+.artifact-card__info {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 头部信息 */
+.artifact-card__header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.artifact-card__name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #1a202c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artifact-card__name-en {
+  font-size: 12px;
+  color: #718096;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+/* 套装信息 */
+.artifact-card__set {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.artifact-card__set-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.artifact-card__slot {
+  font-size: 12px;
+  color: #718096;
+  background: #f7fafc;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* 主属性 */
+.artifact-card__main-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.artifact-card__main-stat-label {
+  font-size: 11px;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.artifact-card__main-stat-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 副属性 */
+.artifact-card__sub-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.artifact-card__sub-stats-label {
+  font-size: 11px;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.artifact-card__sub-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.artifact-card__sub-stat {
+  font-size: 12px;
+  color: #4a5568;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artifact-card__sub-stats-more {
+  font-size: 11px;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+/* 获取方式 */
+.artifact-card__source {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.artifact-card__source-label {
+  font-size: 11px;
+  color: #718096;
+}
+
+.artifact-card__source-value {
+  font-size: 12px;
+  color: #2d3748;
+  background: #edf2f7;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 悬停信息 */
+.artifact-card__hover-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.artifact-card__set-effects h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffd700;
+  text-align: center;
+}
+
+.artifact-card__set-effects-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.set-effect {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.set-effect__count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.set-effect__description {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e2e8f0;
+}
+
+/* 骨架屏样式 */
+.artifact-card--skeleton {
+  pointer-events: none;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  height: 16px;
+  border-radius: 4px;
+}
+
+.skeleton-text--small {
+  height: 12px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 加载状态 */
+.artifact-card--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 340px;
+  color: #718096;
+  background: #f7fafc;
+}
+
+/* 部位特定样式 */
+.artifact-card__slot-icon[data-slot="flower"] {
+  color: #e91e63;
+}
+
+.artifact-card__slot-icon[data-slot="plume"] {
+  color: #9c27b0;
+}
+
+.artifact-card__slot-icon[data-slot="sands"] {
+  color: #ff9800;
+}
+
+.artifact-card__slot-icon[data-slot="goblet"] {
+  color: #2196f3;
+}
+
+.artifact-card__slot-icon[data-slot="circlet"] {
+  color: #ffc107;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .artifact-card {
+    min-height: 300px;
+  }
+
+  .artifact-card__info {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .artifact-card__name {
+    font-size: 15px;
+  }
+
+  .artifact-card__hover-info {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    background: rgba(0, 0, 0, 0.85);
+    margin-top: 8px;
+    border-radius: 8px;
+    padding: 12px;
+  }
+}

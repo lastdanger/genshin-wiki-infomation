@@ -1,0 +1,57 @@
+/**
+ * 圣遗物列表页面样式
+ */
+
+.artifact-list-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.artifact-list-header {
+  margin-bottom: 30px;
+}
+
+.artifact-list-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.artifact-list-subtitle {
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+.artifact-list-filters {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.artifact-list-content {
+  display: grid;
+  gap: 20px;
+}
+
+.artifacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.artifact-list-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.artifact-list-error {
+  text-align: center;
+  padding: 60px 20px;
+  color: #e53e3e;
+}

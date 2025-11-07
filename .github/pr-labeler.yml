@@ -1,0 +1,27 @@
+# 基于分支名称的自动标签配置
+
+feature/*: ['type: feature', '✨ feature']
+feat/*: ['type: feature', '✨ feature']
+
+fix/*: ['type: bug', '🐛 bug']
+bugfix/*: ['type: bug', '🐛 bug']
+hotfix/*: ['type: bug', '🐛 bug', 'priority: critical']
+
+enhancement/*: ['type: enhancement', '📈 enhancement']
+improve/*: ['type: enhancement', '📈 enhancement']
+
+refactor/*: ['type: refactor', '🔄 refactor']
+
+docs/*: ['type: documentation', '📝 documentation']
+documentation/*: ['type: documentation', '📝 documentation']
+
+test/*: ['type: test', '🧪 test']
+tests/*: ['type: test', '🧪 test']
+
+perf/*: ['type: performance', '🚀 performance']
+performance/*: ['type: performance', '🚀 performance']
+
+chore/*: ['type: chore']
+ci/*: ['type: chore', '🔧 infrastructure']
+
+release/*: ['type: release']

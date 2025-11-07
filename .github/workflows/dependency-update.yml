@@ -1,0 +1,205 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # 每周一上午 9:00 UTC (北京时间 17:00) 检查依赖更新
+    - cron: '0 9 * * 1'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  check-backend-deps:
+    name: Check Backend Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Check for security vulnerabilities
+        run: |
+          cd backend
+          pip-audit --requirement requirements.txt --format json --output audit-results.json || true
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-security-audit
+          path: backend/audit-results.json
+
+      - name: Create issue if vulnerabilities found
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            try {
+              const auditResults = JSON.parse(fs.readFileSync('backend/audit-results.json', 'utf8'));
+
+              if (auditResults.vulnerabilities && auditResults.vulnerabilities.length > 0) {
+                const vulnCount = auditResults.vulnerabilities.length;
+                const criticalCount = auditResults.vulnerabilities.filter(v => v.severity === 'critical').length;
+                const highCount = auditResults.vulnerabilities.filter(v => v.severity === 'high').length;
+
+                const issueBody = `## 🔐 后端依赖安全漏洞报告
+
+**检测时间:** ${new Date().toISOString()}
+
+**漏洞统计:**
+- 🔴 Critical: ${criticalCount}
+- 🟠 High: ${highCount}
+- 🟡 Medium: ${vulnCount - criticalCount - highCount}
+- **总计:** ${vulnCount}
+
+**受影响的包:**
+
+${auditResults.vulnerabilities.slice(0, 10).map(v =>
+  \`- \\\`${v.name}\\\` (${v.version}): ${v.summary}\`
+).join('\\n')}
+
+${vulnCount > 10 ? '\\n...还有更多漏洞,请查看完整报告' : ''}
+
+**建议措施:**
+1. 运行 \`pip-audit --fix\` 自动修复
+2. 手动更新 requirements.txt 中的包版本
+3. 测试更新后的依赖是否兼容
+
+**详细报告:** 查看 Actions artifacts
+
+---
+🤖 此 Issue 由自动化检查生成`;
+
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: \`[Security] Backend 依赖发现 ${vulnCount} 个安全漏洞\`,
+                  body: issueBody,
+                  labels: ['🔐 security', 'dependencies', 'priority: high', '⚙️ backend']
+                });
+              }
+            } catch (error) {
+              console.log('No vulnerabilities found or error reading results');
+            }
+
+  check-frontend-deps:
+    name: Check Frontend Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run npm audit
+        run: |
+          cd frontend
+          npm audit --json > audit-results.json || true
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-security-audit
+          path: frontend/audit-results.json
+
+      - name: Check for outdated packages
+        run: |
+          cd frontend
+          npm outdated --json > outdated.json || true
+
+      - name: Create issue if vulnerabilities found
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            try {
+              const auditResults = JSON.parse(fs.readFileSync('frontend/audit-results.json', 'utf8'));
+
+              const vulnCount = auditResults.metadata?.vulnerabilities?.total || 0;
+              const criticalCount = auditResults.metadata?.vulnerabilities?.critical || 0;
+              const highCount = auditResults.metadata?.vulnerabilities?.high || 0;
+              const moderateCount = auditResults.metadata?.vulnerabilities?.moderate || 0;
+
+              if (vulnCount > 0) {
+                const issueBody = \`## 🔐 前端依赖安全漏洞报告
+
+**检测时间:** ${new Date().toISOString()}
+
+**漏洞统计:**
+- 🔴 Critical: ${criticalCount}
+- 🟠 High: ${highCount}
+- 🟡 Moderate: ${moderateCount}
+- **总计:** ${vulnCount}
+
+**建议措施:**
+1. 运行 \\\`npm audit fix\\\` 自动修复
+2. 如果自动修复失败,运行 \\\`npm audit fix --force\\\`
+3. 手动检查是否有 breaking changes
+4. 测试更新后的应用
+
+**查看详细报告:**
+\\\`\\\`\\\`bash
+cd frontend
+npm audit
+\\\`\\\`\\\`
+
+---
+🤖 此 Issue 由自动化检查生成\`;
+
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: \`[Security] Frontend 依赖发现 ${vulnCount} 个安全漏洞\`,
+                  body: issueBody,
+                  labels: ['🔐 security', 'dependencies', 'priority: high', '🎨 frontend']
+                });
+              }
+            } catch (error) {
+              console.log('No vulnerabilities found or error reading results');
+            }
+
+  dependabot-auto-merge:
+    name: Auto-merge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-approve minor and patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-merge minor and patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

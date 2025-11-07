@@ -1,0 +1,13 @@
+/* 布局组件样式 */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px 0;
+  background-color: #f8f9fa;
+}

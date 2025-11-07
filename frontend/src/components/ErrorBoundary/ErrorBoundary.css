@@ -1,0 +1,435 @@
+/* 错误边界组件样式 */
+
+.error-fallback {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.error-fallback__container {
+  max-width: 600px;
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.error-fallback__icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.error-fallback__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 16px 0;
+}
+
+.error-fallback__message {
+  font-size: 16px;
+  color: #718096;
+  line-height: 1.6;
+  margin: 0 0 30px 0;
+}
+
+.error-fallback__details {
+  text-align: left;
+  margin: 20px 0;
+  padding: 16px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.error-fallback__details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #4a5568;
+  user-select: none;
+}
+
+.error-fallback__details summary:hover {
+  color: #2d3748;
+}
+
+.error-fallback__error-info {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.error-fallback__error-info p {
+  margin: 8px 0;
+  color: #4a5568;
+}
+
+.error-fallback__error-info pre {
+  background: #2d3748;
+  color: #f7fafc;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+.error-fallback__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.error-fallback__button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+}
+
+.error-fallback__button--primary {
+  background: #667eea;
+  color: white;
+}
+
+.error-fallback__button--primary:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.error-fallback__button--secondary {
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+.error-fallback__button--secondary:hover {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.error-fallback__button--text {
+  background: transparent;
+  color: #718096;
+  padding: 12px 16px;
+}
+
+.error-fallback__button--text:hover {
+  color: #4a5568;
+  background: #f7fafc;
+}
+
+.error-fallback__tips {
+  text-align: left;
+  background: #f7fafc;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.error-fallback__tip-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 12px 0;
+}
+
+.error-fallback__tip-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.error-fallback__tip-list li {
+  font-size: 14px;
+  color: #4a5568;
+  padding: 6px 0 6px 24px;
+  position: relative;
+}
+
+.error-fallback__tip-list li::before {
+  content: '•';
+  position: absolute;
+  left: 8px;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .error-fallback__container {
+    padding: 30px 20px;
+  }
+
+  .error-fallback__title {
+    font-size: 24px;
+  }
+
+  .error-fallback__icon {
+    font-size: 60px;
+  }
+
+  .error-fallback__actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .error-fallback__button {
+    width: 100%;
+  }
+}
+
+/* ErrorMessage 组件样式 */
+.error-message {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin: 16px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 错误类型样式 */
+.error-message--error {
+  background: #fee;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.error-message--warning {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+}
+
+.error-message--info {
+  background: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+  color: #0c5460;
+}
+
+.error-message--success {
+  background: #d4edda;
+  border-left: 4px solid #28a745;
+  color: #155724;
+}
+
+/* 网络、业务、系统错误类型 */
+.error-message--network {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+}
+
+.error-message--business {
+  background: #f8d7da;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.error-message--system {
+  background: #f8d7da;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.error-message__icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.error-message__content {
+  flex: 1;
+}
+
+.error-message__title {
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  font-size: 14px;
+}
+
+.error-message__text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.error-message__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.error-message__action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.error-message__retry-button {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.error-message__retry-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.error-message__close-button {
+  font-size: 24px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.6;
+}
+
+.error-message__close-button:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* RetryButton 组件样式 */
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.retry-button:hover:not(:disabled) {
+  background: #5a67d8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.retry-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.retry-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.retry-button__icon {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.retry-button--loading .retry-button__icon {
+  display: inline-block;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 按钮大小变体 */
+.retry-button--small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.retry-button--small .retry-button__icon {
+  font-size: 14px;
+}
+
+.retry-button--large {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.retry-button--large .retry-button__icon {
+  font-size: 18px;
+}
+
+/* 按钮样式变体 */
+.retry-button--primary {
+  background: #667eea;
+  color: white;
+}
+
+.retry-button--primary:hover:not(:disabled) {
+  background: #5a67d8;
+}
+
+.retry-button--secondary {
+  background: #718096;
+  color: white;
+}
+
+.retry-button--secondary:hover:not(:disabled) {
+  background: #4a5568;
+}
+
+.retry-button--outline {
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.retry-button--outline:hover:not(:disabled) {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.retry-button__text {
+  display: inline-block;
+}

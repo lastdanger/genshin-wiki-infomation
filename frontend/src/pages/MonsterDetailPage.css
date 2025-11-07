@@ -1,0 +1,748 @@
+/**
+ * 怪物详情页面样式
+ */
+
+.monster-detail-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding-bottom: 2rem;
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.breadcrumb a {
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  color: #e74c3c;
+}
+
+.breadcrumb .separator {
+  color: #9ca3af;
+}
+
+.breadcrumb .current {
+  color: #374151;
+  font-weight: 500;
+}
+
+/* 加载和错误状态 */
+.monster-detail-page__loading,
+.monster-detail-page__error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #e74c3c;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+
+.error-message h3 {
+  margin: 0 0 1rem 0;
+  color: #e74c3c;
+  font-size: 1.3rem;
+}
+
+.error-message p {
+  margin: 0 0 1.5rem 0;
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* 怪物头部信息 */
+.monster-detail-page__header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.monster-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.monster-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.monster-main-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monster-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monster-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.monster-icon {
+  font-size: 3rem;
+  opacity: 0.7;
+}
+
+.monster-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.monster-badges {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.category-badge,
+.element-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 类别颜色 */
+.category-badge.normal { background: #95a5a6; color: white; }
+.category-badge.elite { background: #f39c12; color: white; }
+.category-badge.weekly-boss { background: #8e44ad; color: white; }
+.category-badge.world-boss { background: #e74c3c; color: white; }
+
+/* 元素颜色 */
+.element-badge.pyro { background: #ff6b35; color: white; }
+.element-badge.hydro { background: #4a90e2; color: white; }
+.element-badge.anemo { background: #7fb069; color: white; }
+.element-badge.electro { background: #9b59b6; color: white; }
+.element-badge.dendro { background: #27ae60; color: white; }
+.element-badge.cryo { background: #3498db; color: white; }
+.element-badge.geo { background: #f39c12; color: white; }
+.element-badge.physical { background: #95a5a6; color: white; }
+
+.monster-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.monster-basic-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  min-width: 80px;
+}
+
+.info-value {
+  color: #2c3e50;
+}
+
+.monster-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e74c3c;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 标签页 */
+.monster-detail-page__tabs {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.tab-button {
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.tab-button.active {
+  color: #e74c3c;
+  border-bottom-color: #e74c3c;
+}
+
+.tabs-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 基本信息标签 */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.overview-section {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.overview-section h3 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e74c3c;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.attributes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attribute-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.attribute-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  min-width: 80px;
+}
+
+.attribute-value {
+  color: #2c3e50;
+}
+
+.locations-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.location-tag {
+  padding: 0.25rem 0.5rem;
+  background: #e74c3c;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.weak-points-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.weak-point-item {
+  padding: 0.5rem 1rem;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.resistances-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.resistance-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.resistance-element {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.resistance-value.high-resistance {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.resistance-value.resistance {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.resistance-value.weakness {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.resistance-value.normal {
+  color: #7f8c8d;
+}
+
+.description-section {
+  grid-column: span 2;
+}
+
+.monster-description {
+  color: #4a5568;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* 技能标签 */
+.abilities-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.ability-card {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #e74c3c;
+}
+
+.ability-name {
+  margin: 0 0 0.75rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.ability-description {
+  margin: 0 0 1rem 0;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.ability-damage,
+.ability-cooldown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1rem;
+  font-size: 0.9rem;
+}
+
+.damage-label,
+.cooldown-label {
+  font-weight: 600;
+  color: #7f8c8d;
+}
+
+.damage-value {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.cooldown-value {
+  color: #3498db;
+  font-weight: 600;
+}
+
+/* 掉落物品标签 */
+.drops-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.drop-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.drop-info {
+  flex: 1;
+}
+
+.drop-name {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.drop-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.drop-rate {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.drop-quantity {
+  color: #7f8c8d;
+}
+
+.drop-rarity {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.drop-rarity.rarity-3 { background: #95a5a6; color: white; }
+.drop-rarity.rarity-4 { background: #9b59b6; color: white; }
+.drop-rarity.rarity-5 { background: #f39c12; color: white; }
+
+/* 族群怪物标签 */
+.family-monsters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.family-monster-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.family-monster-card:hover:not(.current) {
+  border-color: #e74c3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
+}
+
+.family-monster-card.current {
+  border-color: #e74c3c;
+  background: #fef2f2;
+  cursor: default;
+}
+
+.family-monster-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto 1rem;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.family-monster-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.family-monster-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.family-monster-info {
+  text-align: center;
+}
+
+.family-monster-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.family-monster-details {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.family-monster-level {
+  color: #7f8c8d;
+}
+
+.family-monster-category {
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: white;
+}
+
+.current-marker {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e74c3c;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* 空内容和加载状态 */
+.empty-content,
+.loading-content {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7f8c8d;
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .monster-header-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .monster-main-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .monster-name {
+    font-size: 2rem;
+  }
+
+  .monster-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tabs-nav {
+    flex-wrap: wrap;
+  }
+
+  .tab-button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .description-section {
+    grid-column: span 1;
+  }
+
+  .family-monsters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .resistances-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .monster-detail-page {
+    padding-bottom: 1rem;
+  }
+
+  .breadcrumb {
+    padding: 0.5rem 0.5rem 0;
+  }
+
+  .monster-header-content {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .tabs-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .monster-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .family-monsters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .error-actions {
+    flex-direction: column;
+  }
+}
