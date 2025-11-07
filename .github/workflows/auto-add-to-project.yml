@@ -13,7 +13,6 @@ jobs:
       - name: Add to project
         uses: actions/add-to-project@v0.6.0
         with:
-          # 替换成你的项目 URL
-          # 格式: https://github.com/users/YOUR_USERNAME/projects/PROJECT_NUMBER
-          project-url: https://github.com/users/lastdanger/projects/1
+          # 项目 URL - Genshin Wiki Info Development
+          project-url: https://github.com/users/lastdanger/projects/2
           github-token: ${{ secrets.GITHUB_TOKEN }}
