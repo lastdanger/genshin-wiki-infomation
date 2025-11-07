@@ -1,0 +1,430 @@
+/**
+ * 武器卡片样式
+ */
+
+.weapon-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  min-height: 340px;
+  cursor: pointer;
+}
+
+.weapon-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.weapon-card:hover .weapon-card__overlay {
+  opacity: 1;
+}
+
+/* 武器图标区域 */
+.weapon-card__avatar {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weapon-card__avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: #666;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+.weapon-card__avatar-icon {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+/* 稀有度星级 */
+.weapon-card__rarity {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffd700;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.weapon-card__rarity.rarity-3 {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.weapon-card__rarity.rarity-4 {
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.weapon-card__rarity.rarity-5 {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+/* 五星武器特殊标识 */
+.weapon-card__five-star-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* 信息区域 */
+.weapon-card__info {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.weapon-card__header {
+  margin-bottom: 8px;
+}
+
+.weapon-card__name {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-card__name-en {
+  margin: 0;
+  font-size: 13px;
+  color: #7f8c8d;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+/* 武器属性标签 */
+.weapon-card__attributes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weapon-card__type,
+.weapon-card__attack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.weapon-card__type-icon,
+.weapon-card__attack-icon {
+  font-size: 16px;
+}
+
+.weapon-card__type-name,
+.weapon-card__attack-value {
+  font-weight: 500;
+}
+
+/* 武器类型颜色主题 */
+.weapon-card.rarity-3 .weapon-card__avatar {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+}
+
+.weapon-card.rarity-4 .weapon-card__avatar {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+}
+
+.weapon-card.rarity-5 .weapon-card__avatar {
+  background: linear-gradient(135deg, #fdcb6e, #e17055);
+}
+
+.weapon-card__type.weapon-type-sword {
+  background: rgba(52, 152, 219, 0.1);
+  color: #2980b9;
+}
+
+.weapon-card__type.weapon-type-claymore {
+  background: rgba(231, 76, 60, 0.1);
+  color: #c0392b;
+}
+
+.weapon-card__type.weapon-type-polearm {
+  background: rgba(155, 89, 182, 0.1);
+  color: #8e44ad;
+}
+
+.weapon-card__type.weapon-type-bow {
+  background: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+}
+
+.weapon-card__type.weapon-type-catalyst {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f39c12;
+}
+
+/* 副属性 */
+.weapon-card__secondary-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(52, 152, 219, 0.05);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.weapon-card__secondary-stat-label {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.weapon-card__secondary-stat-value {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* 被动技能 */
+.weapon-card__passive {
+  background: rgba(142, 68, 173, 0.05);
+  padding: 8px;
+  border-radius: 8px;
+  border-left: 3px solid #8e44ad;
+}
+
+.weapon-card__passive-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8e44ad;
+  margin-bottom: 4px;
+}
+
+.weapon-card__passive-description {
+  font-size: 12px;
+  color: #7f8c8d;
+  line-height: 1.4;
+}
+
+/* 获取方式 */
+.weapon-card__source {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-top: auto;
+  padding: 4px 8px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.03);
+  align-self: flex-start;
+}
+
+.weapon-card__source-icon {
+  font-size: 14px;
+}
+
+.weapon-card__source-name.source-purple {
+  color: #8e44ad;
+}
+
+.weapon-card__source-name.source-blue {
+  color: #3498db;
+}
+
+.weapon-card__source-name.source-orange {
+  color: #f39c12;
+}
+
+.weapon-card__source-name.source-green {
+  color: #27ae60;
+}
+
+.weapon-card__source-name.source-cyan {
+  color: #1abc9c;
+}
+
+.weapon-card__source-name.source-gold {
+  color: #f1c40f;
+}
+
+.weapon-card__source-name.source-default {
+  color: #7f8c8d;
+}
+
+/* 悬停效果遮罩 */
+.weapon-card__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-weight: 500;
+}
+
+/* 加载状态 */
+.weapon-card--loading {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 340px;
+}
+
+.weapon-card--loading:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 骨架屏样式 */
+.weapon-card--skeleton {
+  cursor: default;
+}
+
+.weapon-card--skeleton:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  height: 16px;
+  border-radius: 4px;
+}
+
+.skeleton-text--small {
+  height: 14px;
+}
+
+.skeleton-text--tiny {
+  height: 12px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .weapon-card {
+    min-height: 300px;
+  }
+
+  .weapon-card__avatar {
+    height: 120px;
+  }
+
+  .weapon-card__avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .weapon-card__name {
+    font-size: 16px;
+  }
+
+  .weapon-card__name-en {
+    font-size: 12px;
+  }
+
+  .weapon-card__passive-name {
+    font-size: 13px;
+  }
+
+  .weapon-card__passive-description {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .weapon-card {
+    min-height: 260px;
+  }
+
+  .weapon-card__avatar {
+    height: 100px;
+  }
+
+  .weapon-card__avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .weapon-card__info {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .weapon-card__attributes {
+    gap: 4px;
+  }
+
+  .weapon-card__type,
+  .weapon-card__attack {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+
+  .weapon-card__passive {
+    padding: 6px;
+  }
+
+  .weapon-card__passive-name {
+    font-size: 12px;
+  }
+
+  .weapon-card__passive-description {
+    font-size: 10px;
+  }
+}

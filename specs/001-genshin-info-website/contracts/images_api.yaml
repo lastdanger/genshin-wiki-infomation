@@ -1,0 +1,428 @@
+openapi: 3.0.3
+info:
+  title: 原神图片管理API
+  description: 原神游戏角色图片上传和管理接口
+  version: 1.0.0
+
+paths:
+  /api/images/upload:
+    post:
+      tags:
+        - 图片上传
+      summary: 上传角色图片
+      description: 上传角色相关图片，支持JPG/PNG格式，最大5MB
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 图片文件
+                entity_type:
+                  type: string
+                  enum: [character, weapon, artifact, monster]
+                  description: 关联实体类型
+                entity_id:
+                  type: integer
+                  description: 关联实体ID
+                image_type:
+                  type: string
+                  enum: [user_upload, fanart, screenshot]
+                  default: user_upload
+                  description: 图片类型
+                description:
+                  type: string
+                  maxLength: 500
+                  description: 图片描述（可选）
+              required:
+                - file
+                - entity_type
+                - entity_id
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResult'
+        '400':
+          description: 上传失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: 文件过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/images/{entity_type}/{entity_id}:
+    get:
+      tags:
+        - 图片查询
+      summary: 获取实体相关图片
+      description: 获取指定实体（角色/武器等）的所有相关图片
+      parameters:
+        - name: entity_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [character, weapon, artifact, monster]
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: image_type
+          in: query
+          description: 筛选图片类型
+          required: false
+          schema:
+            type: string
+            enum: [official, user_upload, icon, splash, fanart, screenshot]
+        - name: status
+          in: query
+          description: 审核状态筛选
+          required: false
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+            default: approved
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: 图片列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Image'
+                  total:
+                    type: integer
+
+  /api/images/{image_id}:
+    get:
+      tags:
+        - 图片查询
+      summary: 获取图片详细信息
+      description: 获取指定图片的详细信息和元数据
+      parameters:
+        - name: image_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 图片详细信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageDetail'
+        '404':
+          description: 图片未找到
+
+    delete:
+      tags:
+        - 图片管理
+      summary: 删除图片
+      description: 删除用户上传的图片（仅允许删除自己上传的图片）
+      parameters:
+        - name: image_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: session_token
+          in: header
+          description: 上传会话标识
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "图片已成功删除"
+        '403':
+          description: 无权限删除
+        '404':
+          description: 图片未找到
+
+  /api/images/gallery:
+    get:
+      tags:
+        - 图片画廊
+      summary: 获取图片画廊
+      description: 获取审核通过的用户上传图片，用于图片画廊展示
+      parameters:
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+            enum: [character, weapon, artifact, monster]
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [newest, oldest, popular]
+            default: newest
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: 图片画廊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gallery'
+
+  /api/images/moderation/{image_id}:
+    patch:
+      tags:
+        - 内容审核
+      summary: 更新图片审核状态
+      description: 更新图片的审核状态（管理员接口）
+      parameters:
+        - name: image_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                rejection_reason:
+                  type: string
+                  description: 拒绝原因（状态为rejected时必填）
+              required:
+                - status
+      responses:
+        '200':
+          description: 审核状态更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationResult'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 图片未找到
+
+components:
+  schemas:
+    UploadResult:
+      type: object
+      properties:
+        image_id:
+          type: integer
+          description: 图片ID
+        filename:
+          type: string
+          description: 文件名
+        cdn_url:
+          type: string
+          description: CDN访问URL
+        thumbnail_url:
+          type: string
+          description: 缩略图URL
+        file_size:
+          type: integer
+          description: 文件大小（字节）
+        width:
+          type: integer
+        height:
+          type: integer
+        moderation_status:
+          type: string
+          enum: [pending, approved, rejected]
+          description: 审核状态
+        message:
+          type: string
+          example: "图片上传成功，等待审核"
+
+    Image:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        cdn_url:
+          type: string
+        thumbnail_url:
+          type: string
+        image_type:
+          type: string
+          enum: [official, user_upload, icon, splash, fanart, screenshot]
+        file_size:
+          type: integer
+        width:
+          type: integer
+        height:
+          type: integer
+        entity_type:
+          type: string
+        entity_id:
+          type: integer
+        moderation_status:
+          type: string
+          enum: [pending, approved, rejected]
+        created_at:
+          type: string
+          format: date-time
+
+    ImageDetail:
+      allOf:
+        - $ref: '#/components/schemas/Image'
+        - type: object
+          properties:
+            original_filename:
+              type: string
+            mime_type:
+              type: string
+            description:
+              type: string
+            upload_session:
+              type: string
+              description: 上传会话标识（仅上传者可见）
+            moderated_at:
+              type: string
+              format: date-time
+            rejection_reason:
+              type: string
+            related_entity:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                icon_url:
+                  type: string
+
+    Gallery:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GalleryImage'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+            total_pages:
+              type: integer
+            has_next:
+              type: boolean
+            has_prev:
+              type: boolean
+
+    GalleryImage:
+      type: object
+      properties:
+        id:
+          type: integer
+        cdn_url:
+          type: string
+        thumbnail_url:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+        entity_type:
+          type: string
+        entity_name:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        view_count:
+          type: integer
+          description: 查看次数
+
+    ModerationResult:
+      type: object
+      properties:
+        image_id:
+          type: integer
+        old_status:
+          type: string
+        new_status:
+          type: string
+        moderated_at:
+          type: string
+          format: date-time
+        message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: 错误信息
+        detail:
+          type: string
+          description: 详细错误描述
+        code:
+          type: string
+          description: 错误代码
+        allowed_formats:
+          type: array
+          items:
+            type: string
+          description: 允许的文件格式（文件格式错误时返回）
+        max_file_size:
+          type: integer
+          description: 最大文件大小（文件过大时返回）

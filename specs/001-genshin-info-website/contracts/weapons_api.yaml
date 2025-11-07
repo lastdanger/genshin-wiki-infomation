@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: 原神武器信息API
+  description: 原神游戏武器数据查询接口
+  version: 1.0.0
+
+paths:
+  /api/weapons:
+    get:
+      tags:
+        - 武器
+      summary: 获取武器列表
+      description: 获取武器列表，支持按武器类型、星级筛选和分页
+      parameters:
+        - name: weapon_type
+          in: query
+          description: 武器类型筛选
+          required: false
+          schema:
+            type: string
+            enum: [Sword, Bow, Catalyst, Claymore, Polearm]
+        - name: rarity
+          in: query
+          description: 星级筛选
+          required: false
+          schema:
+            type: integer
+            enum: [3, 4, 5]
+        - name: sort_by
+          in: query
+          description: 排序方式
+          required: false
+          schema:
+            type: string
+            enum: [base_attack, rarity, name]
+            default: rarity
+        - name: order
+          in: query
+          description: 排序顺序
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: 成功返回武器列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Weapon'
+                  total:
+                    type: integer
+
+  /api/weapons/{weapon_id}:
+    get:
+      tags:
+        - 武器
+      summary: 获取武器详细信息
+      description: 获取指定武器的完整信息，包括被动技能、推荐角色等
+      parameters:
+        - name: weapon_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功返回武器详细信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeaponDetail'
+        '404':
+          description: 武器未找到
+
+  /api/weapons/{weapon_id}/recommendations:
+    get:
+      tags:
+        - 武器推荐
+      summary: 获取武器推荐角色
+      description: 获取适合使用该武器的角色推荐
+      parameters:
+        - name: weapon_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 推荐角色列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CharacterRecommendationForWeapon'
+
+  /api/weapons/compare:
+    get:
+      tags:
+        - 武器对比
+      summary: 武器对比
+      description: 对比多个武器的属性和效果
+      parameters:
+        - name: weapon_ids
+          in: query
+          description: 武器ID列表，用逗号分隔
+          required: true
+          schema:
+            type: string
+            example: "1,2,3"
+      responses:
+        '200':
+          description: 武器对比结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weapons:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeaponComparison'
+                  comparison_matrix:
+                    type: object
+                    description: 对比矩阵
+
+components:
+  schemas:
+    Weapon:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: 武器名称
+        name_en:
+          type: string
+          description: 英文名称
+        weapon_type:
+          type: string
+          enum: [Sword, Bow, Catalyst, Claymore, Polearm]
+        rarity:
+          type: integer
+          enum: [3, 4, 5]
+        base_attack:
+          type: integer
+          description: 基础攻击力
+        secondary_stat:
+          type: string
+          description: 副属性类型
+        secondary_value:
+          type: number
+          description: 副属性数值
+        icon_url:
+          type: string
+          description: 武器图标URL
+        obtain_source:
+          type: string
+          description: 获取途径
+
+    WeaponDetail:
+      allOf:
+        - $ref: '#/components/schemas/Weapon'
+        - type: object
+          properties:
+            passive_name:
+              type: string
+              description: 被动技能名称
+            passive_description:
+              type: string
+              description: 被动技能描述
+            passive_stats:
+              type: object
+              description: 被动效果数值
+            description:
+              type: string
+              description: 武器描述
+            lore:
+              type: string
+              description: 背景故事
+            ascension_materials:
+              type: array
+              items:
+                $ref: '#/components/schemas/AscensionMaterial'
+            refinement_effects:
+              type: array
+              items:
+                $ref: '#/components/schemas/RefinementEffect'
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+
+    CharacterRecommendationForWeapon:
+      type: object
+      properties:
+        character:
+          $ref: '#/components/schemas/CharacterBrief'
+        recommendation_level:
+          type: string
+          enum: [best, good, decent]
+        reasoning:
+          type: string
+        synergy_score:
+          type: number
+
+    WeaponComparison:
+      type: object
+      properties:
+        weapon:
+          $ref: '#/components/schemas/Weapon'
+        stats_comparison:
+          type: object
+          properties:
+            attack_advantage:
+              type: number
+              description: 攻击力优势百分比
+            secondary_advantage:
+              type: string
+              description: 副属性对比
+        passive_comparison:
+          type: object
+          properties:
+            effectiveness_score:
+              type: number
+            situational_bonus:
+              type: string
+
+    AscensionMaterial:
+      type: object
+      properties:
+        material_name:
+          type: string
+        quantity_needed:
+          type: integer
+        ascension_level:
+          type: integer
+
+    RefinementEffect:
+      type: object
+      properties:
+        refinement_level:
+          type: integer
+          minimum: 1
+          maximum: 5
+        effect_description:
+          type: string
+        numerical_effects:
+          type: object
+
+    CharacterBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        element:
+          type: string
+        weapon_type:
+          type: string
+        rarity:
+          type: integer
+        icon_url:
+          type: string
+
+    Image:
+      type: object
+      properties:
+        id:
+          type: integer
+        cdn_url:
+          type: string
+        image_type:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer

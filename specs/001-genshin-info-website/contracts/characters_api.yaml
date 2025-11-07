@@ -1,0 +1,455 @@
+openapi: 3.0.3
+info:
+  title: 原神角色信息API
+  description: 原神游戏角色数据查询接口
+  version: 1.0.0
+
+paths:
+  /api/characters:
+    get:
+      tags:
+        - 角色
+      summary: 获取角色列表
+      description: 获取角色列表，支持按元素、武器类型、星级筛选和分页
+      parameters:
+        - name: element
+          in: query
+          description: 元素类型筛选
+          required: false
+          schema:
+            type: string
+            enum: [Anemo, Geo, Electro, Dendro, Hydro, Pyro, Cryo]
+        - name: weapon_type
+          in: query
+          description: 武器类型筛选
+          required: false
+          schema:
+            type: string
+            enum: [Sword, Bow, Catalyst, Claymore, Polearm]
+        - name: rarity
+          in: query
+          description: 星级筛选
+          required: false
+          schema:
+            type: integer
+            minimum: 4
+            maximum: 5
+        - name: skip
+          in: query
+          description: 跳过记录数
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: 返回记录数限制
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: 成功返回角色列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Character'
+                  total:
+                    type: integer
+                    description: 总记录数
+                  skip:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/characters/{character_id}:
+    get:
+      tags:
+        - 角色
+      summary: 获取角色详细信息
+      description: 获取指定角色的完整信息，包括技能、天赋、推荐搭配等
+      parameters:
+        - name: character_id
+          in: path
+          description: 角色ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功返回角色详细信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterDetail'
+        '404':
+          description: 角色未找到
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/characters/{character_id}/skills:
+    get:
+      tags:
+        - 角色技能
+      summary: 获取角色技能列表
+      description: 获取指定角色的所有技能信息
+      parameters:
+        - name: character_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功返回技能列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CharacterSkill'
+
+  /api/characters/{character_id}/recommendations:
+    get:
+      tags:
+        - 角色推荐
+      summary: 获取角色推荐搭配
+      description: 获取角色的武器和圣遗物推荐搭配
+      parameters:
+        - name: character_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: type
+          in: query
+          description: 推荐类型
+          required: false
+          schema:
+            type: string
+            enum: [weapons, artifacts, all]
+            default: all
+      responses:
+        '200':
+          description: 成功返回推荐信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterRecommendations'
+
+  /api/characters/search:
+    get:
+      tags:
+        - 搜索
+      summary: 搜索角色
+      description: 通过名称或描述搜索角色
+      parameters:
+        - name: q
+          in: query
+          description: 搜索关键词
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: 搜索结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CharacterSearchResult'
+                  total:
+                    type: integer
+
+components:
+  schemas:
+    Character:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 角色ID
+        name:
+          type: string
+          description: 角色姓名
+        name_en:
+          type: string
+          description: 英文姓名
+        element:
+          type: string
+          enum: [Anemo, Geo, Electro, Dendro, Hydro, Pyro, Cryo]
+          description: 元素类型
+        weapon_type:
+          type: string
+          enum: [Sword, Bow, Catalyst, Claymore, Polearm]
+          description: 武器类型
+        rarity:
+          type: integer
+          enum: [4, 5]
+          description: 星级
+        region:
+          type: string
+          description: 所属地区
+        title:
+          type: string
+          description: 称号
+        icon_url:
+          type: string
+          description: 角色头像URL
+        splash_url:
+          type: string
+          description: 角色立绘URL
+
+    CharacterDetail:
+      allOf:
+        - $ref: '#/components/schemas/Character'
+        - type: object
+          properties:
+            base_stats:
+              $ref: '#/components/schemas/BaseStats'
+            ascension_stats:
+              $ref: '#/components/schemas/AscensionStats'
+            description:
+              type: string
+              description: 角色描述
+            birthday:
+              type: string
+              format: date
+              description: 生日
+            constellation_name:
+              type: string
+              description: 命座名称
+            affiliation:
+              type: string
+              description: 所属组织
+            skills:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacterSkill'
+            talents:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacterTalent'
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+
+    CharacterSkill:
+      type: object
+      properties:
+        id:
+          type: integer
+        skill_type:
+          type: string
+          enum: [normal_attack, elemental_skill, elemental_burst]
+          description: 技能类型
+        name:
+          type: string
+          description: 技能名称
+        description:
+          type: string
+          description: 技能描述
+        scaling_data:
+          type: object
+          description: 技能数值
+        energy_cost:
+          type: integer
+          description: 能量消耗
+        cooldown:
+          type: number
+          description: 冷却时间（秒）
+
+    CharacterTalent:
+      type: object
+      properties:
+        id:
+          type: integer
+        talent_type:
+          type: string
+          enum: [passive1, passive2, passive3, constellation]
+        level_requirement:
+          type: integer
+          description: 解锁等级要求
+        constellation_level:
+          type: integer
+          description: 命座等级
+        name:
+          type: string
+          description: 天赋名称
+        description:
+          type: string
+          description: 天赋描述
+
+    CharacterRecommendations:
+      type: object
+      properties:
+        weapons:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeaponRecommendation'
+        artifacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArtifactRecommendation'
+
+    WeaponRecommendation:
+      type: object
+      properties:
+        weapon:
+          $ref: '#/components/schemas/WeaponBrief'
+        recommendation_level:
+          type: string
+          enum: [best, good, decent]
+        reasoning:
+          type: string
+        synergy_score:
+          type: number
+          minimum: 1.0
+          maximum: 10.0
+
+    ArtifactRecommendation:
+      type: object
+      properties:
+        artifact:
+          $ref: '#/components/schemas/ArtifactBrief'
+        recommendation_type:
+          type: string
+          enum: [main_dps, support, burst_dps]
+        priority:
+          type: integer
+        main_stats_recommendation:
+          type: object
+        sub_stats_priority:
+          type: array
+          items:
+            type: string
+        reasoning:
+          type: string
+
+    WeaponBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        weapon_type:
+          type: string
+        rarity:
+          type: integer
+        icon_url:
+          type: string
+
+    ArtifactBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        set_name:
+          type: string
+        two_piece_effect:
+          type: string
+        four_piece_effect:
+          type: string
+
+    CharacterSearchResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        element:
+          type: string
+        weapon_type:
+          type: string
+        rarity:
+          type: integer
+        icon_url:
+          type: string
+        match_highlight:
+          type: string
+          description: 匹配高亮文本
+
+    BaseStats:
+      type: object
+      properties:
+        hp:
+          type: integer
+          description: 基础生命值
+        atk:
+          type: integer
+          description: 基础攻击力
+        def:
+          type: integer
+          description: 基础防御力
+
+    AscensionStats:
+      type: object
+      properties:
+        stat:
+          type: string
+          description: 突破属性类型
+        value:
+          type: number
+          description: 突破属性数值
+
+    Image:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        cdn_url:
+          type: string
+        image_type:
+          type: string
+          enum: [official, user_upload, icon, splash]
+        width:
+          type: integer
+        height:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: 错误信息
+        detail:
+          type: string
+          description: 详细错误描述
+        code:
+          type: string
+          description: 错误代码

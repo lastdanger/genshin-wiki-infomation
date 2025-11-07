@@ -1,0 +1,111 @@
+# 基于文件路径的自动标签配置
+
+# 模块标签
+'module: character':
+  - backend/src/models/character*.py
+  - backend/src/api/characters.py
+  - backend/src/services/character*.py
+  - backend/src/schemas/character.py
+  - backend/add_sample_data.py
+  - frontend/src/pages/Characters/**/*
+  - frontend/src/components/Character/**/*
+
+'module: weapon':
+  - backend/src/models/weapon*.py
+  - backend/src/api/weapons.py
+  - backend/src/services/weapon*.py
+  - backend/src/schemas/weapon.py
+  - backend/add_weapon_samples.py
+  - frontend/src/pages/Weapons/**/*
+  - frontend/src/components/Weapon/**/*
+
+'module: artifact':
+  - backend/src/models/artifact*.py
+  - backend/src/api/artifacts.py
+  - backend/src/services/artifact*.py
+  - backend/src/schemas/artifact.py
+  - backend/add_artifact_samples.py
+  - frontend/src/pages/Artifacts/**/*
+  - frontend/src/components/Artifact/**/*
+
+'module: monster':
+  - backend/src/models/monster*.py
+  - backend/src/api/monsters.py
+  - backend/src/services/monster*.py
+  - backend/src/schemas/monster.py
+  - backend/add_monster_samples.py
+  - frontend/src/pages/Monsters/**/*
+  - frontend/src/components/Monster/**/*
+
+'module: game mechanics':
+  - backend/src/api/game_mechanics.py
+  - frontend/src/pages/GameMechanics/**/*
+
+'module: gallery':
+  - backend/src/models/image*.py
+  - backend/src/api/images.py
+  - frontend/src/pages/Gallery/**/*
+  - frontend/src/components/Gallery/**/*
+
+# 前后端标签
+'🎨 frontend':
+  - frontend/**/*
+
+'⚙️ backend':
+  - backend/**/*
+
+# 基础设施标签
+'🔧 infrastructure':
+  - docker-compose.yml
+  - backend/Dockerfile
+  - frontend/Dockerfile
+  - .github/workflows/**/*
+  - .github/**/*
+  - '*.md'
+
+'🗄️ database':
+  - backend/src/db/**/*
+  - backend/alembic/**/*
+  - backend/init_db.py
+  - backend/src/models/**/*
+  - alembic.ini
+
+# 类型标签
+'📝 documentation':
+  - '**/*.md'
+  - docs/**/*
+  - README.md
+
+'🧪 test':
+  - '**/tests/**/*'
+  - '**/*_test.py'
+  - '**/*.test.js'
+  - '**/*.test.jsx'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+
+'dependencies':
+  - backend/requirements.txt
+  - frontend/package.json
+  - frontend/package-lock.json
+
+'🎨 styling':
+  - '**/*.css'
+  - '**/*.scss'
+  - '**/*.less'
+
+'🔐 security':
+  - backend/src/middleware/security.py
+  - backend/src/middleware/cors.py
+  - '**/auth/**/*'
+
+'📦 build':
+  - '**/Dockerfile'
+  - docker-compose.yml
+  - '**/webpack*.js'
+  - frontend/.env*
+  - backend/.env*
+
+'⚡ performance':
+  - backend/src/cache/**/*
+  - '**/redis*.py'

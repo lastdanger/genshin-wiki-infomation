@@ -1,50 +1,97 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version: NEW → 1.0.0 (初始版本)
+Modified principles: 新增5项核心原则
+Added sections: 合规要求, 开发规范
+Removed sections: 无
+Templates requiring updates: 待检查其他模板文件
+-->
+
+# 原神维基信息系统 Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### 一、用户体验优先
+所有功能设计以新用户为中心。
+流程要简单直接，减少用户操作步骤。
+每个页面加载时间不超过3秒。
+界面使用中文，专业词汇要有释义。
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+**验收标准**: 新用户能在5分钟内完成主要操作，无需说明文档。
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### 二、数据准确性
+游戏信息必须来自官方渠道验证。
+数据更新后24小时内同步到系统。
+错误信息必须在发现后2小时内修正。
+所有数据变更要有操作记录。
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**验收标准**: 数据准确率达到99%以上，有完整的更新日志。
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### 三、隐私安全保护 (不可协商)
+用户个人信息严格按照《个人信息保护法》处理。
+不收集用户游戏账号密码等敏感信息。
+数据传输使用HTTPS加密。
+用户有权删除个人数据。
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**验收标准**: 通过安全审计，符合当地法律法规要求。
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### 四、简化操作流程
+任何功能不超过3步操作。
+重要信息在首屏展示。
+减少用户输入，多用选择和点击。
+移动端适配优先。
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**验收标准**: 用户完成核心任务的平均步骤数≤3步。
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### 五、文档规范化
+代码注释使用中文。
+每个功能要有《是什么/为什么/怎么验收》说明。
+禁用"全面提升"等无具体意义的描述。
+文档每段不超过5行。
+
+**验收标准**: 新同学能通过文档独立完成开发任务。
+
+## 合规要求
+
+### 法律合规
+遵守《网络安全法》、《数据安全法》、《个人信息保护法》。
+游戏相关内容遵守文化部门相关规定。
+不提供游戏外挂、破解等违规功能。
+
+### 内容审查
+用户生成内容需要审核机制。
+敏感词过滤和人工复审结合。
+建立举报处理流程。
+
+## 开发规范
+
+### 代码规范
+优先使用短函数，单个函数不超过50行。
+变量命名使用有意义的中文拼音或英文。
+每个模块要有单元测试。
+提交代码前必须通过代码检查。
+
+### 团队协作
+新需求要先写技术方案。
+代码评审(Code Review)必须有2人参与。
+每周进行技术分享，提升团队能力。
+问题处理要有文档记录。
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+本章程是所有开发工作的最高准则。
+任何代码变更都必须符合章程要求。
+章程修改需要团队讨论并达成共识。
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### 实施要求
+- 所有PR必须验证是否符合章程要求
+- 复杂功能需要有设计文档说明必要性
+- 定期检查系统是否符合隐私安全要求
+- 用户反馈要在48小时内响应
+
+### 版本管理
+- 重大原则变更: MAJOR版本+1
+- 新增章节或原则: MINOR版本+1
+- 文字优化和澄清: PATCH版本+1
+
+**Version**: 1.0.0 | **Ratified**: 2025-11-05 | **Last Amended**: 2025-11-05
