@@ -1,0 +1,131 @@
+name: 📝 文档改进 | Documentation Improvement
+description: 改进或补充项目文档
+title: "[Docs] "
+labels: ["type: documentation", "status: triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你帮助改进项目文档!清晰的文档对项目的成功至关重要。
+
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: 文档类型 | Documentation Type
+      options:
+        - 📖 README
+        - 🚀 快速开始指南 | Quick Start
+        - 🔧 安装说明 | Installation
+        - 💻 开发指南 | Development Guide
+        - 📡 API 文档 | API Documentation
+        - 🎨 组件文档 | Component Documentation
+        - 🏗️ 架构说明 | Architecture
+        - 🤝 贡献指南 | Contributing Guide
+        - 📝 变更日志 | Changelog
+        - ❓ FAQ
+        - 其他 | Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: 问题类型 | Issue Type
+      options:
+        - 🐛 文档错误 | Error in Documentation
+        - 📝 内容缺失 | Missing Content
+        - 🔄 内容过时 | Outdated Content
+        - 💡 改进建议 | Improvement Suggestion
+        - 🆕 新增文档 | New Documentation
+        - 🌐 翻译问题 | Translation Issue
+    validations:
+      required: true
+
+  - type: input
+    id: doc_location
+    attributes:
+      label: 文档位置 | Document Location
+      description: 相关文档的路径或链接
+      placeholder: 如 README.md, docs/api/character.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_content
+    attributes:
+      label: 当前内容 | Current Content
+      description: 需要改进的当前文档内容(如适用)
+      placeholder: |
+        当前文档中写道:
+        ```markdown
+        运行 `npm start` 启动项目
+        ```
+      render: markdown
+
+  - type: textarea
+    id: suggested_content
+    attributes:
+      label: 建议内容 | Suggested Content
+      description: 你建议的改进内容
+      placeholder: |
+        建议改为:
+        ```markdown
+        ## 启动开发服务器
+
+        ### 后端
+        ```bash
+        cd backend
+        uvicorn app.main:app --reload
+        ```
+
+        ### 前端
+        ```bash
+        cd frontend
+        npm start
+        ```
+        ```
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: 改进理由 | Reason for Change
+      description: 为什么需要这个改进?
+      placeholder: |
+        当前文档没有说明需要分别启动前后端,新手开发者可能会困惑...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 附加信息 | Additional Context
+      description: 其他任何有助于理解的信息
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 文档质量检查 | Quality Checklist
+      description: 建议的文档内容是否满足以下标准?
+      options:
+        - label: 内容准确无误
+        - label: 语言清晰易懂
+        - label: 包含必要的示例代码
+        - label: 格式规范(Markdown)
+        - label: 中英文双语(如适用)
+        - label: 包含相关链接和参考
+
+  - type: dropdown
+    id: willing_to_write
+    attributes:
+      label: 愿意编写文档吗? | Willing to Write?
+      options:
+        - 是,我愿意提交 PR | Yes, I'll submit a PR
+        - 可能,需要审核 | Maybe, need review
+        - 否,仅提建议 | No, just suggesting
+    validations:
+      required: false

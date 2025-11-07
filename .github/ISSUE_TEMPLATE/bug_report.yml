@@ -1,0 +1,148 @@
+name: 🐛 Bug 报告 | Bug Report
+description: 报告一个 Bug 帮助我们改进项目
+title: "[Bug] "
+labels: ["type: bug", "status: triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你花时间填写这个 Bug 报告!请尽可能详细地描述问题。
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 提交前检查
+      description: 请确保你已经完成以下步骤
+      options:
+        - label: 我已经搜索过现有的 Issues,确认这不是重复报告
+          required: true
+        - label: 我已经阅读过项目文档
+          required: true
+        - label: 我使用的是最新版本
+          required: false
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 问题模块 | Module
+      description: 这个 Bug 发生在哪个模块?
+      options:
+        - 🎭 角色模块 | Character
+        - ⚔️ 武器模块 | Weapon
+        - 💎 圣遗物模块 | Artifact
+        - 👾 怪物模块 | Monster
+        - 📚 游戏机制 | Game Mechanics
+        - 🖼️ 图片管理 | Gallery
+        - 🔧 基础设施 | Infrastructure
+        - 🎨 前端 | Frontend
+        - ⚙️ 后端 | Backend
+        - 🗄️ 数据库 | Database
+        - 📱 移动端 | Mobile
+        - 其他 | Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级 | Priority
+      description: 这个问题的严重程度如何?
+      options:
+        - 🔥 P0 - 严重 (系统崩溃/数据丢失)
+        - 🔴 P1 - 高 (核心功能不可用)
+        - 🟡 P2 - 中 (功能有问题但有替代方案)
+        - 🟢 P3 - 低 (小问题/视觉问题)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述 | Bug Description
+      description: 清晰简洁地描述这个 Bug
+      placeholder: 当我尝试查看钟离的角色详情时...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤 | Steps to Reproduce
+      description: 如何复现这个问题?
+      placeholder: |
+        1. 访问首页
+        2. 点击角色模块
+        3. 搜索"钟离"
+        4. 点击角色卡片
+        5. 页面报错
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为 | Expected Behavior
+      description: 你期望发生什么?
+      placeholder: 应该显示钟离的详细信息页面,包括属性和技能
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为 | Actual Behavior
+      description: 实际上发生了什么?
+      placeholder: 页面显示"500 Internal Server Error"
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截图 | Screenshots
+      description: 如果适用,请添加截图帮助解释问题
+      placeholder: 拖拽图片到此处或粘贴链接
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息 | Environment
+      description: 请提供你的环境信息
+      value: |
+        - 操作系统: [如 Windows 11, macOS 14.0, Ubuntu 22.04]
+        - 浏览器: [如 Chrome 120, Firefox 121, Safari 17]
+        - 设备: [如 Desktop, Mobile, Tablet]
+        - 项目版本: [如 v1.0.0 或 commit hash]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 错误日志 | Error Logs
+      description: 如果有相关的错误日志,请粘贴在这里
+      render: shell
+      placeholder: |
+        Error: Failed to fetch character data
+        at CharacterService.getCharacterById (character.service.ts:45)
+        ...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 附加信息 | Additional Context
+      description: 其他任何有助于理解问题的信息
+      placeholder: 这个问题只在登录后才会出现...
+
+  - type: dropdown
+    id: willing_to_fix
+    attributes:
+      label: 愿意提交 PR 修复吗? | Willing to Submit a PR?
+      options:
+        - 是,我愿意提交 PR | Yes, I'd like to submit a PR
+        - 可能,需要指导 | Maybe, need guidance
+        - 否,仅报告 | No, just reporting
+    validations:
+      required: false

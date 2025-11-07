@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 讨论区 | Discussions
+    url: https://github.com/YOUR_USERNAME/genshin-wiki-info/discussions
+    about: 如果你有问题或想法,欢迎在讨论区交流
+  - name: 📚 文档 | Documentation
+    url: https://github.com/YOUR_USERNAME/genshin-wiki-info/wiki
+    about: 查看项目文档和使用指南
+  - name: 🌐 米游社原神Wiki
+    url: https://wiki.biligame.com/ys/首页
+    about: 查看官方游戏数据

@@ -1,0 +1,179 @@
+name: 🔄 数据更新请求 | Data Update Request
+description: 报告游戏数据过时或错误
+title: "[Data] "
+labels: ["type: data", "module: data-crawler", "status: triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你帮助我们保持数据准确和最新!原神会定期更新版本,我们需要社区帮助发现和更新数据。
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 提交前检查
+      options:
+        - label: 我已经搜索过现有的 Issues,确认这不是重复报告
+          required: true
+        - label: 我已经验证了官方数据源(米游社Wiki/官网)的最新信息
+          required: true
+        - label: 我确认这是数据问题,而非功能 Bug
+          required: true
+
+  - type: dropdown
+    id: data_type
+    attributes:
+      label: 数据类型 | Data Type
+      description: 需要更新的数据类型
+      options:
+        - 🎭 角色数据 | Character Data
+        - ⚔️ 武器数据 | Weapon Data
+        - 💎 圣遗物数据 | Artifact Data
+        - 👾 怪物数据 | Monster Data
+        - 📚 游戏机制 | Game Mechanics
+        - 🗺️ 地图数据 | Map Data
+        - 🎁 材料物品 | Materials/Items
+        - 📅 活动信息 | Event Info
+        - 其他 | Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: 问题类型 | Issue Type
+      description: 这是什么类型的数据问题?
+      options:
+        - 📝 数据错误 | Incorrect Data
+        - 🆕 新增数据 | New Data (new version)
+        - 🔄 数据过时 | Outdated Data
+        - ❓ 数据缺失 | Missing Data
+        - 🌐 数据源问题 | Data Source Issue
+    validations:
+      required: true
+
+  - type: input
+    id: game_version
+    attributes:
+      label: 游戏版本 | Game Version
+      description: 相关的游戏版本号
+      placeholder: 如 4.2, 4.3, 5.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected_items
+    attributes:
+      label: 受影响的项目 | Affected Items
+      description: 列出受影响的具体角色/武器/圣遗物等
+      placeholder: |
+        - 角色: 钟离, 胡桃
+        - 武器: 和璞鸢
+        - 圣遗物: 如雷的盛怒
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_data
+    attributes:
+      label: 当前数据 | Current Data
+      description: 网站当前显示的数据(错误/过时的数据)
+      placeholder: |
+        角色: 钟离
+        生命值: 14695
+        攻击力: 251
+        防御力: 738
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: correct_data
+    attributes:
+      label: 正确数据 | Correct Data
+      description: 正确的最新数据
+      placeholder: |
+        角色: 钟离
+        生命值: 14695 (修正后)
+        攻击力: 251
+        防御力: 738
+        新增技能: 天赋名称 - 技能描述
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: data_source
+    attributes:
+      label: 数据来源 | Data Source
+      description: 请提供官方或可靠的数据来源链接
+      placeholder: |
+        - 米游社Wiki: https://wiki.biligame.com/ys/钟离
+        - 官方公告: https://ys.mihoyo.com/main/news/detail/xxxxx
+        - 游戏内截图: [附在下方]
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截图证明 | Screenshots/Proof
+      description: 上传游戏内截图或数据来源截图
+      placeholder: 拖拽图片到此处
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级 | Priority
+      description: 这个数据问题的紧急程度
+      options:
+        - 🔴 P1 - 高 (严重错误,影响玩家决策)
+        - 🟡 P2 - 中 (数据不准确但影响有限)
+        - 🟢 P3 - 低 (细微差异或文本问题)
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 影响说明 | Impact Description
+      description: 这个数据错误会如何影响玩家?
+      placeholder: |
+        这个属性数据错误会导致玩家在培养角色时做出错误的决策,
+        可能浪费珍贵的材料资源...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 附加信息 | Additional Context
+      description: 其他任何有助于理解这个数据问题的信息
+      placeholder: |
+        这个数据在版本 4.2 中被官方调整过...
+
+  - type: checkboxes
+    id: data_scope
+    attributes:
+      label: 数据范围 | Data Scope
+      description: 这个更新涉及哪些数据字段?
+      options:
+        - label: 基础属性 (生命值、攻击力、防御力等)
+        - label: 技能描述
+        - label: 技能数值/倍率
+        - label: 天赋材料
+        - label: 突破材料
+        - label: 命之座/精炼效果
+        - label: 图片资源
+        - label: 其他
+
+  - type: dropdown
+    id: willing_to_help
+    attributes:
+      label: 愿意协助更新吗? | Willing to Help Update?
+      options:
+        - 是,我可以提供完整数据 | Yes, I can provide complete data
+        - 是,我可以帮助验证 | Yes, I can help verify
+        - 否,仅报告问题 | No, just reporting
+    validations:
+      required: false

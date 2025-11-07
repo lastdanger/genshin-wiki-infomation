@@ -1,0 +1,162 @@
+name: ✨ 功能请求 | Feature Request
+description: 建议一个新功能或改进
+title: "[Feature] "
+labels: ["type: feature", "status: triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你的建议!我们重视每一个功能请求。请详细描述你的想法。
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 提交前检查
+      options:
+        - label: 我已经搜索过现有的 Issues,确认这不是重复请求
+          required: true
+        - label: 我已经阅读过项目文档和规划
+          required: true
+        - label: 这个功能符合项目的目标和范围
+          required: false
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 相关模块 | Module
+      description: 这个功能属于哪个模块?
+      options:
+        - 🎭 角色模块 | Character
+        - ⚔️ 武器模块 | Weapon
+        - 💎 圣遗物模块 | Artifact
+        - 👾 怪物模块 | Monster
+        - 📚 游戏机制 | Game Mechanics
+        - 🖼️ 图片管理 | Gallery
+        - 🔍 搜索功能 | Search
+        - 👤 用户系统 | User System
+        - 🎨 UI/UX 改进 | UI/UX
+        - 🚀 性能优化 | Performance
+        - 🔧 基础设施 | Infrastructure
+        - 其他 | Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 建议优先级 | Priority Suggestion
+      description: 你认为这个功能有多重要?
+      options:
+        - 🔴 P1 - 高 (核心功能,用户强需求)
+        - 🟡 P2 - 中 (有用的功能)
+        - 🟢 P3 - 低 (锦上添花)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述 | Problem Statement
+      description: 描述你遇到的问题或不便之处
+      placeholder: |
+        作为一个原神玩家,当我想要比较不同角色的伤害能力时,我需要在多个页面之间来回切换,这很不方便...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 解决方案 | Proposed Solution
+      description: 描述你期望的解决方案
+      placeholder: |
+        希望能添加一个"角色对比"功能,允许我同时查看2-4个角色的属性、技能和伤害数据,并排显示进行对比。
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案 | Alternatives Considered
+      description: 你是否考虑过其他解决方案?
+      placeholder: |
+        - 方案1: 在角色详情页添加"添加到对比"按钮
+        - 方案2: 使用浮动面板进行对比
+        - 方案3: 创建独立的对比页面
+
+  - type: textarea
+    id: user_stories
+    attributes:
+      label: 用户故事 | User Stories
+      description: 从用户角度描述使用场景
+      placeholder: |
+        - 作为玩家,我希望能对比角色的基础属性,以便选择更适合我队伍的角色
+        - 作为新手,我希望能看到角色之间的差异,以便做出明智的培养决策
+        - 作为资深玩家,我希望能对比技能倍率,以便优化我的输出循环
+
+  - type: textarea
+    id: mockup
+    attributes:
+      label: 界面设计/原型 | Mockup/Wireframe
+      description: 如果有界面设计想法,可以附上截图或链接
+      placeholder: 拖拽图片到此处,或粘贴 Figma/设计稿链接
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准 | Acceptance Criteria
+      description: 如何判断这个功能已经完成?
+      placeholder: |
+        - [ ] 用户可以选择2-4个角色进行对比
+        - [ ] 对比界面并排显示角色属性
+        - [ ] 对比结果可以导出或分享
+        - [ ] 移动端也能正常使用
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: 技术建议 | Technical Suggestions
+      description: 如果你有技术实现建议,请描述
+      placeholder: |
+        可以使用 React Context 来管理对比列表,
+        使用 CSS Grid 实现响应式布局...
+
+  - type: textarea
+    id: references
+    attributes:
+      label: 参考资料 | References
+      description: 相关的链接、文章或其他资料
+      placeholder: |
+        - 类似功能: https://example.com/compare
+        - 设计参考: https://dribbble.com/shots/...
+        - 竞品分析: 其他原神工具网站的实现方式
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 附加信息 | Additional Context
+      description: 其他任何有助于理解这个功能请求的信息
+
+  - type: dropdown
+    id: willing_to_implement
+    attributes:
+      label: 愿意实现这个功能吗? | Willing to Implement?
+      options:
+        - 是,我愿意提交 PR | Yes, I'd like to submit a PR
+        - 可能,需要指导 | Maybe, need guidance
+        - 否,仅提建议 | No, just suggesting
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: 影响评估 | Impact Assessment
+      description: 这个功能可能会影响哪些方面?
+      options:
+        - label: 需要修改现有 API
+        - label: 需要数据库 schema 变更
+        - label: 需要新增依赖包
+        - label: 影响现有用户体验
+        - label: 需要更新文档
