@@ -13,6 +13,8 @@ jobs:
       - name: Add to project
         uses: actions/add-to-project@v0.6.0
         with:
-          # 项目 URL - Genshin Wiki Info Development
+          # 项目 URL - Genshin Wiki Info - Development
           project-url: https://github.com/users/lastdanger/projects/2
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # 使用 PROJECT_TOKEN 而不是 GITHUB_TOKEN 来获取 Projects 权限
+          # 需要在仓库 Settings → Secrets → Actions 中添加 PROJECT_TOKEN
+          github-token: ${{ secrets.PROJECT_TOKEN }}
