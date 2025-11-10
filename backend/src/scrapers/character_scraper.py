@@ -1,15 +1,14 @@
 """
 Character data scraper for Genshin Impact.
 
-Scrapes character information from:
-- Bilibili Game Wiki: https://wiki.biligame.com/ys/角色筛选
-- HomdGCat Wiki: https://homdgcat.wiki/gi/char
+Scrapes character information from individual character pages on Bilibili Game Wiki.
+URL pattern: https://wiki.biligame.com/ys/{角色中文名}
 """
 
 import logging
 import re
 from typing import Any, Dict, List, Optional
-from urllib.parse import urljoin
+from urllib.parse import quote
 
 from bs4 import BeautifulSoup, Tag
 
@@ -22,36 +21,57 @@ class CharacterScraper(BaseScraper):
     """
     Scraper for Genshin Impact character data.
 
-    Collects:
-    - Character list (name, rarity, element, weapon type)
-    - Character details (stats, skills, talents, constellations)
-    - Ascension materials
+    Uses individual character URLs to extract:
+    - Basic info (name, rarity, element, weapon type, region)
+    - Stats (HP, ATK, DEF, ascension bonus)
+    - Description
     """
 
     # Data source URLs
     BILIBILI_BASE_URL = "https://wiki.biligame.com/ys"
-    BILIBILI_CHARACTER_LIST_URL = f"{BILIBILI_BASE_URL}/角色筛选"
-    HOMDGCAT_BASE_URL = "https://homdgcat.wiki/gi"
-    HOMDGCAT_CHARACTER_URL = f"{HOMDGCAT_BASE_URL}/char"
 
     # Element mapping (Chinese to English)
     ELEMENT_MAP = {
         "火": "Pyro",
+        "火元素": "Pyro",
         "水": "Hydro",
+        "水元素": "Hydro",
         "风": "Anemo",
+        "风元素": "Anemo",
         "雷": "Electro",
+        "雷元素": "Electro",
         "草": "Dendro",
+        "草元素": "Dendro",
         "冰": "Cryo",
+        "冰元素": "Cryo",
         "岩": "Geo",
+        "岩元素": "Geo",
     }
 
-    # Weapon type mapping
+    # Weapon type mapping (Chinese to English)
     WEAPON_MAP = {
         "单手剑": "Sword",
+        "单手剑武器使用": "Sword",
         "双手剑": "Claymore",
+        "双手剑武器使用": "Claymore",
         "长柄武器": "Polearm",
-        "法器": "Catalyst",
+        "长柄武器武器使用": "Polearm",
         "弓": "Bow",
+        "弓武器使用": "Bow",
+        "弓箭武器使用": "Bow",
+        "法器": "Catalyst",
+        "法器武器使用": "Catalyst",
+    }
+
+    # Region mapping (Chinese to English)
+    REGION_MAP = {
+        "蒙德": "Mondstadt",
+        "璃月": "Liyue",
+        "稻妻": "Inazuma",
+        "须弥": "Sumeru",
+        "枫丹": "Fontaine",
+        "纳塔": "Natlan",
+        "至冬": "Snezhnaya",
     }
 
     def __init__(self, config: Optional[ScraperConfig] = None):
@@ -59,363 +79,356 @@ class CharacterScraper(BaseScraper):
         super().__init__(config)
         self._character_cache: Dict[str, Dict[str, Any]] = {}
 
-    async def scrape(self) -> List[Dict[str, Any]]:
+        # Initialize stats if parent didn't
+        if not hasattr(self, '_stats'):
+            self._stats = {
+                "requests": 0,
+                "errors": 0,
+                "success_rate": 100.0,
+            }
+
+    async def scrape(self, character_names: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
-        Scrape all character data.
+        Scrape character data for specified characters.
+
+        Args:
+            character_names: List of character names (Chinese) to scrape.
+                           If None, will use a default list.
 
         Returns:
             List of character dictionaries with complete information
         """
-        logger.info("Starting character scraping...")
+        if character_names is None:
+            # Default character list (can be expanded)
+            character_names = [
+                "琴", "迪卢克", "莫娜", "温迪",  # 蒙德
+                "刻晴", "魈", "甘雨", "胡桃", "钟离",  # 璃月
+                "雷电将军", "神里绫华",  # 稻妻
+                "纳西妲",  # 须弥
+                "那维莱特",  # 枫丹
+                "班尼特", "香菱", "行秋", "砂糖", "菲谢尔",  # 4星
+            ]
 
-        # Step 1: Get character list
-        character_list = await self.scrape_character_list()
-        logger.info(f"Found {len(character_list)} characters")
-
-        # Step 2: Get details for each character
-        characters_with_details = []
-        for char_data in character_list:
-            try:
-                details = await self.scrape_character_details(char_data)
-                if details:
-                    characters_with_details.append(details)
-                    logger.info(f"Scraped details for {details['name']}")
-            except Exception as e:
-                logger.error(
-                    f"Error scraping details for {char_data.get('name')}: {e}",
-                    exc_info=True
-                )
-
-        logger.info(f"Successfully scraped {len(characters_with_details)} characters")
-        return characters_with_details
-
-    async def scrape_character_list(self) -> List[Dict[str, Any]]:
-        """
-        Scrape character list from Bilibili Wiki.
-
-        Returns:
-            List of basic character info (name, rarity, element, weapon)
-        """
-        logger.info(f"Fetching character list from {self.BILIBILI_CHARACTER_LIST_URL}")
-
-        html = await self.fetch(self.BILIBILI_CHARACTER_LIST_URL)
-        if not html:
-            logger.error("Failed to fetch character list")
-            return []
-
-        soup = self.parse_html(html)
-        if not soup:
-            logger.error("Failed to parse character list HTML")
-            return []
+        logger.info(f"Starting character scraping for {len(character_names)} characters...")
 
         characters = []
-
-        # Find character table/cards
-        # Note: The actual structure depends on the website's HTML
-        # This is a template that needs to be adjusted based on actual site structure
-        character_elements = soup.select(".character-card, .role-box, tr.character-row")
-
-        if not character_elements:
-            logger.warning("No character elements found with default selectors")
-            # Try alternative selectors
-            character_elements = soup.find_all("div", class_=re.compile(r"character|role|char"))
-
-        for element in character_elements:
+        for char_name in character_names:
             try:
-                char_data = self._parse_character_list_item(element)
+                char_data = await self.scrape_character(char_name)
                 if char_data:
                     characters.append(char_data)
+                    logger.info(f"✅ Scraped: {char_name}")
+                else:
+                    logger.warning(f"⚠️  No data for: {char_name}")
             except Exception as e:
-                logger.warning(f"Error parsing character element: {e}")
-                continue
+                logger.error(f"❌ Error scraping {char_name}: {e}", exc_info=True)
+                self._stats["errors"] += 1
 
+        logger.info(f"Successfully scraped {len(characters)}/{len(character_names)} characters")
         return characters
 
-    def _parse_character_list_item(self, element: Tag) -> Optional[Dict[str, Any]]:
+    async def scrape_character(self, char_name: str) -> Optional[Dict[str, Any]]:
         """
-        Parse a single character from the list.
+        Scrape single character data from their wiki page.
 
         Args:
-            element: BeautifulSoup Tag element
+            char_name: Character name in Chinese (e.g., "琴", "雷电将军")
 
         Returns:
-            Dictionary with basic character info, or None if parsing fails
+            Character data dictionary or None if scraping failed
         """
-        try:
-            # Extract character name
-            name_element = element.select_one(".name, .character-name, a[title]")
-            if not name_element:
-                return None
+        # Build character URL
+        encoded_name = quote(char_name)
+        url = f"{self.BILIBILI_BASE_URL}/{encoded_name}"
 
-            name = name_element.get_text(strip=True)
-            if not name:
-                return None
+        logger.debug(f"Fetching character page: {url}")
 
-            # Extract detail page URL
-            detail_url = None
-            link = element.find("a", href=True)
-            if link:
-                detail_url = urljoin(self.BILIBILI_BASE_URL, link["href"])
-
-            # Extract rarity (星级)
-            rarity = None
-            rarity_element = element.select_one(".rarity, .star, [class*='star']")
-            if rarity_element:
-                rarity_text = rarity_element.get_text(strip=True)
-                # Extract number from text like "5星" or "★★★★★"
-                rarity_match = re.search(r"(\d)", rarity_text)
-                if rarity_match:
-                    rarity = int(rarity_match.group(1))
-                else:
-                    # Count stars
-                    rarity = rarity_text.count("★")
-
-            # Extract element (元素)
-            element_type = None
-            element_elem = element.select_one(".element, .attr, [class*='element']")
-            if element_elem:
-                element_text = element_elem.get_text(strip=True)
-                element_type = self.ELEMENT_MAP.get(element_text, element_text)
-
-            # Extract weapon type (武器类型)
-            weapon_type = None
-            weapon_elem = element.select_one(".weapon, .weapon-type, [class*='weapon']")
-            if weapon_elem:
-                weapon_text = weapon_elem.get_text(strip=True)
-                weapon_type = self.WEAPON_MAP.get(weapon_text, weapon_text)
-
-            # Extract region (国家/地区)
-            region = None
-            region_elem = element.select_one(".region, .nation, [class*='region']")
-            if region_elem:
-                region = region_elem.get_text(strip=True)
-
-            character_data = {
-                "name": name,
-                "rarity": rarity,
-                "element": element_type,
-                "weapon_type": weapon_type,
-                "region": region,
-                "detail_url": detail_url,
-            }
-
-            return character_data
-
-        except Exception as e:
-            logger.warning(f"Error parsing character list item: {e}")
+        # Fetch HTML
+        html = await self.fetch(url)
+        if not html:
+            logger.error(f"Failed to fetch page for {char_name}")
             return None
 
-    async def scrape_character_details(
-        self, basic_info: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
-        """
-        Scrape detailed information for a single character.
-
-        Args:
-            basic_info: Basic character info from character list
-
-        Returns:
-            Complete character data with details
-        """
-        detail_url = basic_info.get("detail_url")
-        if not detail_url:
-            logger.warning(f"No detail URL for {basic_info.get('name')}")
-            return basic_info
-
-        logger.info(f"Fetching details for {basic_info['name']} from {detail_url}")
-
-        html = await self.fetch(detail_url)
-        if not html:
-            logger.error(f"Failed to fetch details for {basic_info['name']}")
-            return basic_info
-
+        # Parse HTML
         soup = self.parse_html(html)
         if not soup:
-            logger.error(f"Failed to parse details HTML for {basic_info['name']}")
-            return basic_info
+            logger.error(f"Failed to parse HTML for {char_name}")
+            return None
 
-        # Start with basic info
-        character_data = basic_info.copy()
-
-        # Extract additional details
-        character_data.update({
-            "description": self._extract_description(soup),
-            "base_stats": self._extract_base_stats(soup),
-            "skills": self._extract_skills(soup),
-            "talents": self._extract_talents(soup),
-            "constellations": self._extract_constellations(soup),
-            "ascension_materials": self._extract_ascension_materials(soup),
-        })
-
-        return character_data
-
-    def _extract_description(self, soup: BeautifulSoup) -> Optional[str]:
-        """Extract character description."""
+        # Extract character data
         try:
-            desc_element = soup.select_one(".description, .intro, .character-desc")
-            if desc_element:
-                return desc_element.get_text(strip=True)
+            char_data = self._extract_character_data(soup, char_name)
+            return char_data
         except Exception as e:
-            logger.warning(f"Error extracting description: {e}")
-        return None
+            logger.error(f"Failed to extract data for {char_name}: {e}", exc_info=True)
+            return None
 
-    def _extract_base_stats(self, soup: BeautifulSoup) -> Dict[str, Any]:
-        """Extract character base stats (HP, ATK, DEF)."""
-        stats = {
-            "hp": None,
-            "attack": None,
-            "defense": None,
-            "crit_rate": None,
-            "crit_dmg": None,
+    def _extract_character_data(self, soup: BeautifulSoup, char_name: str) -> Dict[str, Any]:
+        """
+        Extract character data from parsed HTML.
+
+        Args:
+            soup: BeautifulSoup object
+            char_name: Character name
+
+        Returns:
+            Character data dictionary
+        """
+        data = {
+            "name": char_name,
+            "name_en": None,
+            "rarity": None,
+            "element": None,
+            "weapon_type": None,
+            "region": None,
+            "description": None,
+            "base_stats": {},
+            "ascension_stats": {},
         }
 
-        try:
-            # Look for stats table
-            stats_table = soup.select_one(".stats-table, table.character-stats")
-            if stats_table:
-                rows = stats_table.find_all("tr")
-                for row in rows:
-                    cells = row.find_all(["th", "td"])
-                    if len(cells) >= 2:
-                        stat_name = cells[0].get_text(strip=True)
-                        stat_value = cells[1].get_text(strip=True)
+        # Find all wikitable tables
+        tables = soup.find_all("table", class_="wikitable")
 
-                        # Parse stat values
-                        value_match = re.search(r"([\d,]+\.?\d*)", stat_value)
-                        if value_match:
-                            value = float(value_match.group(1).replace(",", ""))
+        if not tables:
+            logger.warning(f"No wikitable found for {char_name}")
+            return data
 
-                            if "生命值" in stat_name or "HP" in stat_name.upper():
-                                stats["hp"] = value
-                            elif "攻击力" in stat_name or "ATK" in stat_name.upper():
-                                stats["attack"] = value
-                            elif "防御力" in stat_name or "DEF" in stat_name.upper():
-                                stats["defense"] = value
-                            elif "暴击率" in stat_name or "CRIT Rate" in stat_name:
-                                stats["crit_rate"] = value
-                            elif "暴击伤害" in stat_name or "CRIT DMG" in stat_name:
-                                stats["crit_dmg"] = value
+        # Extract from first table (basic info)
+        if len(tables) >= 1:
+            self._extract_basic_info(tables[0], data)
 
-        except Exception as e:
-            logger.warning(f"Error extracting base stats: {e}")
+        # Extract from second table (stats)
+        if len(tables) >= 2:
+            self._extract_stats(tables[1], data)
 
-        return stats
+        # Extract description
+        self._extract_description(soup, data)
 
-    def _extract_skills(self, soup: BeautifulSoup) -> List[Dict[str, Any]]:
-        """Extract character skills (Normal Attack, Elemental Skill, Elemental Burst)."""
-        skills = []
+        # Extract English name from full name
+        self._extract_english_name(data)
 
-        try:
-            skill_sections = soup.select(".skill-section, .talent-section, div[id*='skill']")
+        return data
 
-            for section in skill_sections:
-                skill_name = None
-                skill_desc = None
-                skill_type = None
+    def _extract_basic_info(self, table: Tag, data: Dict[str, Any]) -> None:
+        """Extract basic character info from the first wikitable."""
+        rows = table.find_all("tr")
 
-                # Extract skill name
-                name_elem = section.select_one("h2, h3, .skill-name, .talent-name")
-                if name_elem:
-                    skill_name = name_elem.get_text(strip=True)
+        for row in rows:
+            th = row.find("th")
+            td = row.find("td")
 
-                # Extract skill description
-                desc_elem = section.select_one("p, .skill-desc, .talent-desc")
-                if desc_elem:
-                    skill_desc = desc_elem.get_text(strip=True)
+            if not th or not td:
+                continue
 
-                # Determine skill type
-                if skill_name:
-                    if "普通攻击" in skill_name or "Normal Attack" in skill_name:
-                        skill_type = "normal_attack"
-                    elif "元素战技" in skill_name or "Elemental Skill" in skill_name:
-                        skill_type = "elemental_skill"
-                    elif "元素爆发" in skill_name or "Elemental Burst" in skill_name:
-                        skill_type = "elemental_burst"
+            label = th.get_text(strip=True)
+            value = td.get_text(strip=True)
 
-                if skill_name and skill_desc:
-                    skills.append({
-                        "name": skill_name,
-                        "type": skill_type,
-                        "description": skill_desc,
-                    })
+            # Extract based on label
+            if "全名" in label or "本名" in label:
+                data["full_name"] = value
 
-        except Exception as e:
-            logger.warning(f"Error extracting skills: {e}")
+            elif "所属地区" in label:
+                # Map Chinese region to English
+                data["region"] = self.REGION_MAP.get(value, value)
 
-        return skills
+            elif "神之眼" in label or "神之心" in label or "古龙大权" in label:
+                # Extract element (remove "元素" suffix)
+                element_zh = value.replace("元素", "").strip()
+                data["element"] = self.ELEMENT_MAP.get(element_zh, element_zh)
 
-    def _extract_talents(self, soup: BeautifulSoup) -> List[Dict[str, Any]]:
-        """Extract character passive talents."""
-        talents = []
+            elif "武器类型" in label:
+                # Map weapon type
+                data["weapon_type"] = self.WEAPON_MAP.get(value, value)
 
-        try:
-            talent_sections = soup.select(".passive-talent, div[id*='passive']")
+            elif "稀有度" in label:
+                # Try to extract rarity from alt text or image filename
+                # Format: "5星.png" or "4星.png"
+                stars = td.find_all("img")
+                rarity = None
 
-            for section in talent_sections:
-                talent_name = section.select_one("h3, .talent-name")
-                talent_desc = section.select_one("p, .talent-desc")
+                if stars:
+                    # Check first image's alt or src
+                    img = stars[0]
+                    alt = img.get("alt", "")
+                    src = img.get("src", "")
 
-                if talent_name and talent_desc:
-                    talents.append({
-                        "name": talent_name.get_text(strip=True),
-                        "description": talent_desc.get_text(strip=True),
-                    })
+                    # Try to extract from alt text (e.g., "5星.png")
+                    match = re.search(r"(\d+)星", alt)
+                    if match:
+                        rarity = int(match.group(1))
+                    else:
+                        # Try to extract from src filename
+                        match = re.search(r"(\d+)星", src)
+                        if match:
+                            rarity = int(match.group(1))
 
-        except Exception as e:
-            logger.warning(f"Error extracting talents: {e}")
+                if not rarity:
+                    # Fallback: count ★ symbols in text
+                    star_count = value.count("★") or value.count("☆")
+                    if star_count > 0:
+                        rarity = star_count
 
-        return talents
+                if rarity:
+                    data["rarity"] = rarity
 
-    def _extract_constellations(self, soup: BeautifulSoup) -> List[Dict[str, Any]]:
-        """Extract character constellations (命之座)."""
-        constellations = []
+    def _extract_stats(self, table: Tag, data: Dict[str, Any]) -> None:
+        """Extract character stats from the second wikitable."""
+        # Find all rows (including header)
+        all_rows = table.find_all("tr")
 
-        try:
-            const_sections = soup.select(".constellation, div[id*='constellation']")
+        if len(all_rows) < 2:
+            return
 
-            for i, section in enumerate(const_sections, 1):
-                const_name = section.select_one("h3, .constellation-name")
-                const_desc = section.select_one("p, .constellation-desc")
+        # First row is header with stat names
+        header_row = all_rows[0]
+        headers = [th.get_text(strip=True) for th in header_row.find_all("th")]
 
-                if const_name and const_desc:
-                    constellations.append({
-                        "level": i,
-                        "name": const_name.get_text(strip=True),
-                        "description": const_desc.get_text(strip=True),
-                    })
+        # Skip second row (it's "突破前/突破后" row)
+        # Data rows start from index 2
+        data_rows = all_rows[2:] if len(all_rows) > 2 else []
 
-        except Exception as e:
-            logger.warning(f"Error extracting constellations: {e}")
+        if not data_rows:
+            return
 
-        return constellations
+        # Find level 90 row (last row usually)
+        target_row = None
 
-    def _extract_ascension_materials(self, soup: BeautifulSoup) -> List[Dict[str, Any]]:
-        """Extract ascension materials."""
-        materials = []
+        for row in reversed(data_rows):  # Search from end
+            cells = row.find_all("td")
+            if cells:
+                level_text = cells[0].get_text(strip=True)
+                # Match "90" exactly
+                if level_text == "90" or level_text == "90级":
+                    target_row = row
+                    break
 
-        try:
-            material_sections = soup.select(".material, .ascension-material, table.materials")
+        # Fallback to last data row
+        if not target_row and data_rows:
+            target_row = data_rows[-1]
 
-            for section in material_sections:
-                rows = section.find_all("tr")
+        if not target_row:
+            return
 
-                for row in rows:
-                    cells = row.find_all(["th", "td"])
-                    if len(cells) >= 2:
-                        material_name = cells[0].get_text(strip=True)
-                        quantity_text = cells[1].get_text(strip=True)
+        cells = target_row.find_all("td")
 
-                        # Extract quantity
-                        quantity_match = re.search(r"(\d+)", quantity_text)
-                        quantity = int(quantity_match.group(1)) if quantity_match else None
+        # For level 90 row, cells structure is:
+        # [level, hp, '-', atk, '-', def, '-', bonus_stat, '-']
+        # We need to extract: cells[1]=HP, cells[3]=ATK, cells[5]=DEF, cells[7]=bonus
 
-                        if material_name and quantity:
-                            materials.append({
-                                "name": material_name,
-                                "quantity": quantity,
-                            })
+        # Map headers to cell indices (skip "-" cells)
+        cell_index = 1  # Start after level cell
 
-        except Exception as e:
-            logger.warning(f"Error extracting ascension materials: {e}")
+        for i, header in enumerate(headers):
+            if i == 0:  # Skip "等级" header
+                continue
 
-        return materials
+            if cell_index >= len(cells):
+                break
+
+            # Get cell value
+            value_text = cells[cell_index].get_text(strip=True)
+
+            # Skip to next valid cell (skip "-" cells)
+            # For 90 level row: indices 1, 3, 5, 7 have values
+            cell_index += 2  # Skip current + "-" cell
+
+            # Skip if "-" or empty
+            if not value_text or value_text == "-":
+                continue
+
+            # Try to extract numeric value
+            try:
+                # Remove percentage signs, commas, spaces
+                value_clean = value_text.replace("%", "").replace(",", "").replace("，", "").replace(" ", "")
+                # Extract number
+                match = re.search(r"([\d.]+)", value_clean)
+                if match:
+                    num_str = match.group(1)
+                    value = float(num_str) if "." in num_str else int(num_str)
+                else:
+                    continue
+            except Exception as e:
+                logger.debug(f"Failed to parse value '{value_text}' for header '{header}': {e}")
+                continue
+
+            # Map header to field
+            header_lower = header.lower()
+
+            if "生命" in header or "hp" in header_lower:
+                data["base_stats"]["hp"] = value
+            elif "攻击" in header or "atk" in header_lower or "attack" in header_lower:
+                data["base_stats"]["atk"] = value
+            elif "防御" in header or "def" in header_lower or "defense" in header_lower:
+                data["base_stats"]["def"] = value
+            elif "暴击率" in header or ("暴击" in header and "率" in header):
+                data["ascension_stats"]["stat"] = "crit_rate"
+                data["ascension_stats"]["value"] = value
+            elif "暴击伤害" in header or ("暴击" in header and "伤" in header):
+                data["ascension_stats"]["stat"] = "crit_dmg"
+                data["ascension_stats"]["value"] = value
+            elif "元素充能" in header or "energy" in header_lower:
+                data["ascension_stats"]["stat"] = "energy_recharge"
+                data["ascension_stats"]["value"] = value
+            elif "治疗" in header or "heal" in header_lower:
+                data["ascension_stats"]["stat"] = "healing_bonus"
+                data["ascension_stats"]["value"] = value
+            elif "元素精通" in header or "mastery" in header_lower:
+                data["ascension_stats"]["stat"] = "elemental_mastery"
+                data["ascension_stats"]["value"] = int(value)
+            elif "物理伤害" in header:
+                data["ascension_stats"]["stat"] = "physical_dmg_bonus"
+                data["ascension_stats"]["value"] = value
+            elif "元素伤害" in header or "伤害加成" in header:
+                # Generic elemental damage bonus
+                data["ascension_stats"]["stat"] = "elemental_dmg_bonus"
+                data["ascension_stats"]["value"] = value
+
+    def _extract_description(self, soup: BeautifulSoup, data: Dict[str, Any]) -> None:
+        """Extract character description from page content."""
+        content_div = soup.find("div", class_="mw-parser-output")
+
+        if not content_div:
+            return
+
+        # Find first meaningful paragraph
+        paragraphs = content_div.find_all("p", recursive=False)
+
+        for p in paragraphs:
+            text = p.get_text(strip=True)
+
+            # Skip empty or very short paragraphs
+            if not text or len(text) < 20:
+                continue
+
+            # Skip paragraphs that are just navigation or metadata
+            if any(skip in text for skip in ["第", "章", "幕", "====", "CV", "配音"]):
+                continue
+
+            # Found a good description
+            data["description"] = text[:200]  # Limit to 200 chars
+            break
+
+    def _extract_english_name(self, data: Dict[str, Any]) -> None:
+        """Extract English name from full_name field."""
+        full_name = data.get("full_name", "")
+
+        if not full_name:
+            return
+
+        # Look for English name in parentheses
+        # Format: "琴·古恩希尔德（Jean Gunnhildr）"
+        match = re.search(r"\(([A-Za-z\s]+)\)|（([A-Za-z\s]+)）", full_name)
+
+        if match:
+            # Get the first non-empty group
+            name_en = match.group(1) or match.group(2)
+            data["name_en"] = name_en.strip()
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        Get scraping statistics.
+
+        Returns:
+            Statistics dictionary
+        """
+        return self._stats.copy()
