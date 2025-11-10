@@ -9,9 +9,10 @@ Provides endpoints to:
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db.session import get_db
@@ -22,6 +23,17 @@ from ..scrapers.data_storage import DataStorageService
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/scraper")
+
+
+# Request/Response models
+class ScraperRequest(BaseModel):
+    """Request model for triggering scraper with optional character list."""
+
+    character_names: Optional[List[str]] = Field(
+        None,
+        description="Optional list of character names (Chinese) to scrape. If not provided, will scrape all characters.",
+        example=["琴", "迪卢克", "莫娜", "温迪"]
+    )
 
 
 # Global scraper status
@@ -36,18 +48,35 @@ _scraper_status = {
 @router.post("/characters/trigger", summary="手动触发角色数据爬取")
 async def trigger_character_scraping(
     background_tasks: BackgroundTasks,
+    request: Optional[ScraperRequest] = None,
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     手动触发角色数据爬取。
 
     爬取流程：
-    1. 从数据源爬取角色列表
+    1. 从数据源爬取角色列表（可指定或使用默认全部角色）
     2. 爬取每个角色的详细信息
     3. 存储到数据库（增量更新）
 
+    Args:
+        request: 可选的请求体，包含要爬取的角色列表
+            - 如果提供 character_names，则只爬取指定角色
+            - 如果不提供，则爬取所有默认角色（76个）
+
     Returns:
         任务状态信息
+
+    Example:
+        ```bash
+        # 爬取所有角色
+        curl -X POST http://localhost:8002/api/scraper/characters/trigger
+
+        # 爬取指定角色
+        curl -X POST http://localhost:8002/api/scraper/characters/trigger \\
+          -H "Content-Type: application/json" \\
+          -d '{"character_names": ["琴", "迪卢克", "莫娜"]}'
+        ```
     """
     if _scraper_status["is_running"]:
         raise HTTPException(
@@ -55,13 +84,19 @@ async def trigger_character_scraping(
             detail="Scraper is already running. Please wait for it to complete."
         )
 
+    # Extract character names from request
+    character_names = request.character_names if request else None
+
     # Add scraping task to background
-    background_tasks.add_task(run_character_scraping, db)
+    background_tasks.add_task(run_character_scraping, db, character_names)
+
+    character_count = len(character_names) if character_names else "all (76)"
 
     return {
         "success": True,
-        "message": "Character scraping task started in background",
+        "message": f"Character scraping task started in background for {character_count} characters",
         "status": "started",
+        "character_count": len(character_names) if character_names else 76,
     }
 
 
@@ -120,16 +155,19 @@ async def get_scraper_config() -> Dict[str, Any]:
     }
 
 
-async def run_character_scraping(db: AsyncSession):
+async def run_character_scraping(db: AsyncSession, character_names: Optional[List[str]] = None):
     """
     执行角色数据爬取的后台任务。
 
     Args:
         db: Database session
+        character_names: Optional list of character names to scrape.
+                        If None, will scrape all default characters.
     """
     from datetime import datetime
 
-    logger.info("Starting character scraping task...")
+    character_count = len(character_names) if character_names else "all"
+    logger.info(f"Starting character scraping task for {character_count} characters...")
 
     _scraper_status["is_running"] = True
     _scraper_status["current_task"] = "characters"
@@ -150,7 +188,8 @@ async def run_character_scraping(db: AsyncSession):
         # Run scraping
         async with scraper:
             logger.info("Scraping character data...")
-            characters = await scraper.scrape()
+            # Pass character_names parameter
+            characters = await scraper.scrape(character_names)
 
             logger.info(f"Scraped {len(characters)} characters")
             scraper_stats = scraper.get_stats()
@@ -165,6 +204,7 @@ async def run_character_scraping(db: AsyncSession):
                 "scraper_stats": scraper_stats,
                 "storage_stats": storage_stats,
                 "total_characters": len(characters),
+                "requested_characters": len(character_names) if character_names else "all",
             }
 
             logger.info(f"Character scraping completed successfully. Stats: {scraper_stats}, {storage_stats}")
