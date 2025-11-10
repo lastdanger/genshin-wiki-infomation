@@ -93,21 +93,14 @@ class CharacterScraper(BaseScraper):
 
         Args:
             character_names: List of character names (Chinese) to scrape.
-                           If None, will use a default list.
+                           If None, will use the default production list (all characters).
 
         Returns:
             List of character dictionaries with complete information
         """
         if character_names is None:
-            # Default character list (can be expanded)
-            character_names = [
-                "琴", "迪卢克", "莫娜", "温迪",  # 蒙德
-                "刻晴", "魈", "甘雨", "胡桃", "钟离",  # 璃月
-                "雷电将军", "神里绫华",  # 稻妻
-                "纳西妲",  # 须弥
-                "那维莱特",  # 枫丹
-                "班尼特", "香菱", "行秋", "砂糖", "菲谢尔",  # 4星
-            ]
+            # Production default: all characters (5.2 version)
+            character_names = self._get_default_character_list()
 
         logger.info(f"Starting character scraping for {len(character_names)} characters...")
 
@@ -126,6 +119,66 @@ class CharacterScraper(BaseScraper):
 
         logger.info(f"Successfully scraped {len(characters)}/{len(character_names)} characters")
         return characters
+
+    def _get_default_character_list(self) -> List[str]:
+        """
+        Get the default character list for production.
+
+        Returns all characters from version 5.2, organized by region.
+        To customize, either:
+        1. Modify this method
+        2. Pass character_names parameter to scrape()
+        3. Use environment variable SCRAPER_CHARACTERS
+        4. Configure via database (if enabled)
+        """
+        import os
+
+        # Check environment variable first
+        env_characters = os.getenv("SCRAPER_CHARACTERS")
+        if env_characters:
+            return [name.strip() for name in env_characters.split(",")]
+
+        # Default: all characters by region (Genshin Impact 5.2)
+        return [
+            # 蒙德 (Mondstadt) - 5星
+            "琴", "迪卢克", "莫娜", "温迪", "可莉", "优菈", "阿贝多",
+
+            # 蒙德 (Mondstadt) - 4星
+            "班尼特", "砂糖", "菲谢尔", "芭芭拉", "雷泽", "诺艾尔", "罗莎莉亚", "米卡",
+
+            # 璃月 (Liyue) - 5星
+            "刻晴", "魈", "甘雨", "胡桃", "钟离", "七七",
+
+            # 璃月 (Liyue) - 4星
+            "香菱", "行秋", "北斗", "凝光", "辛焱", "重云", "烟绯", "云堇", "瑶瑶", "嘉明",
+
+            # 稻妻 (Inazuma) - 5星
+            "雷电将军", "神里绫华", "宵宫", "珊瑚宫心海", "荒瀧一斗", "八重神子", "神里绫人",
+
+            # 稻妻 (Inazuma) - 4星
+            "早柚", "九条裟罗", "托马", "五郎", "久岐忍", "鹿野院平藏", "绮良良",
+
+            # 须弥 (Sumeru) - 5星
+            "纳西妲", "提纳里", "赛诺", "妮露", "流浪者", "艾尔海森", "迪希雅",
+
+            # 须弥 (Sumeru) - 4星
+            "柯莱", "多莉", "坎蒂丝", "莱依拉", "珐露珊", "卡维", "白术",
+
+            # 枫丹 (Fontaine) - 5星
+            "那维莱特", "芙宁娜", "莱欧斯利", "娜维娅", "克洛琳德", "阿蕾奇诺", "希格雯",
+
+            # 枫丹 (Fontaine) - 4星
+            "琳妮特", "菲米尼", "夏沃蕾", "夏洛蒂", "嘉维尔", "艾梅莉埃",
+
+            # 纳塔 (Natlan) - 5星
+            "玛拉妮", "基尼奇", "希诺宁",
+
+            # 纳塔 (Natlan) - 4星
+            "卡齐娜",
+
+            # 其他 (Starter characters)
+            "旅行者", "安柏", "凯亚", "丽莎",
+        ]
 
     async def scrape_character(self, char_name: str) -> Optional[Dict[str, Any]]:
         """
