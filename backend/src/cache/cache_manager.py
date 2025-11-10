@@ -26,6 +26,13 @@ class CacheManager:
     def __init__(self):
         self.redis = get_redis()
         self.default_ttl = settings.redis_cache_ttl
+        # 缓存统计
+        self._stats = {
+            "hits": 0,
+            "misses": 0,
+            "sets": 0,
+            "deletes": 0,
+        }
 
     def _generate_key(self, prefix: str, *args, **kwargs) -> str:
         """
@@ -80,10 +87,12 @@ class CacheManager:
         # 尝试从缓存获取
         cached_value = await self.redis.get(key)
         if cached_value is not None:
+            self._stats["hits"] += 1
             log_cache_operation("hit", key)
             return cached_value
 
         # 缓存未命中，执行函数
+        self._stats["misses"] += 1
         log_cache_operation("miss", key)
 
         if asyncio.iscoroutinefunction(func):
@@ -94,6 +103,7 @@ class CacheManager:
         # 设置缓存
         cache_ttl = ttl or self.default_ttl
         await self.redis.set(key, result, cache_ttl)
+        self._stats["sets"] += 1
         log_cache_operation("set", key, ttl=cache_ttl)
 
         return result
@@ -153,6 +163,39 @@ class CacheManager:
                 logger.error("缓存预热失败", cache_name=cache_name, error=str(e))
 
         logger.info("缓存预热完成")
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        获取缓存统计信息
+
+        Returns:
+            统计信息字典
+        """
+        total_requests = self._stats["hits"] + self._stats["misses"]
+        hit_rate = (
+            (self._stats["hits"] / total_requests * 100)
+            if total_requests > 0
+            else 0
+        )
+
+        return {
+            "hits": self._stats["hits"],
+            "misses": self._stats["misses"],
+            "sets": self._stats["sets"],
+            "deletes": self._stats["deletes"],
+            "total_requests": total_requests,
+            "hit_rate": round(hit_rate, 2),
+        }
+
+    def reset_stats(self) -> None:
+        """重置统计信息"""
+        self._stats = {
+            "hits": 0,
+            "misses": 0,
+            "sets": 0,
+            "deletes": 0,
+        }
+        logger.info("缓存统计已重置")
 
 
 # 全局缓存管理器实例
