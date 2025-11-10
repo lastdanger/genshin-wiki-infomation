@@ -27,6 +27,7 @@ from src.api.game_mechanics import router as game_mechanics_router
 from src.api.images import router as images_router
 from src.api.search import router as search_router
 from src.api.cache_stats import router as cache_router
+from src.api.scraper import router as scraper_router
 
 settings = get_settings()
 logger = structlog.get_logger()
@@ -162,6 +163,10 @@ app = FastAPI(
         {
             "name": "搜索 Search",
             "description": "**统一搜索接口**\n\n跨模块的全文搜索功能，可同时搜索角色、武器、圣遗物等。",
+        },
+        {
+            "name": "爬虫 Scraper",
+            "description": "**数据爬取管理**\n\n手动触发数据爬取、查看爬虫状态、爬取统计等。支持从多个数据源爬取角色、武器、圣遗物数据。",
         }
     ]
 )
@@ -253,6 +258,12 @@ app.include_router(
     cache_router,
     prefix="/api/cache",
     tags=["系统 System"]
+)
+
+app.include_router(
+    scraper_router,
+    prefix="/api",
+    tags=["爬虫 Scraper"]
 )
 
 
