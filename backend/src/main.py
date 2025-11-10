@@ -26,6 +26,7 @@ from src.api.monsters import router as monsters_router
 from src.api.game_mechanics import router as game_mechanics_router
 from src.api.images import router as images_router
 from src.api.search import router as search_router
+from src.api.cache_stats import router as cache_router
 
 settings = get_settings()
 logger = structlog.get_logger()
@@ -246,6 +247,12 @@ app.include_router(
     search_router,
     prefix="/api/search",
     tags=["搜索 Search"]
+)
+
+app.include_router(
+    cache_router,
+    prefix="/api/cache",
+    tags=["系统 System"]
 )
 
 
