@@ -21,7 +21,7 @@ from ..scrapers.data_storage import DataStorageService
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/scraper", tags=["Scraper"])
+router = APIRouter(prefix="/scraper")
 
 
 # Global scraper status
