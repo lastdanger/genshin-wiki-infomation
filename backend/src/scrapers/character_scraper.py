@@ -260,6 +260,9 @@ class CharacterScraper(BaseScraper):
         # Extract English name from full name
         self._extract_english_name(data)
 
+        # Handle special cases (Traveler)
+        self._handle_special_characters(data, char_name)
+
         return data
 
     def _extract_basic_info(self, table: Tag, data: Dict[str, Any]) -> None:
@@ -476,6 +479,28 @@ class CharacterScraper(BaseScraper):
             # Get the first non-empty group
             name_en = match.group(1) or match.group(2)
             data["name_en"] = name_en.strip()
+
+    def _handle_special_characters(self, data: Dict[str, Any], char_name: str) -> None:
+        """
+        Handle special character cases (e.g., Traveler with no fixed element).
+
+        Args:
+            data: Character data dictionary
+            char_name: Character name
+        """
+        # Traveler (旅行者) doesn't have a fixed element, set to Anemo as default
+        if char_name == "旅行者":
+            if not data.get("element"):
+                data["element"] = "Anemo"  # Default to Anemo (wind element)
+                logger.info(f"Setting default element 'Anemo' for {char_name}")
+
+            # Set English name if missing
+            if not data.get("name_en"):
+                data["name_en"] = "Traveler"
+
+            # Set region if missing
+            if not data.get("region"):
+                data["region"] = "其他"
 
     def get_stats(self) -> Dict[str, Any]:
         """
