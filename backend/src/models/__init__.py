@@ -15,6 +15,7 @@ from .character_weapon_recommendation import CharacterWeaponRecommendation
 from .character_artifact_recommendation import CharacterArtifactRecommendation
 from .weapon import Weapon
 from .artifact import Artifact
+from .artifact_set import ArtifactSet
 from .monster import Monster
 from .image import Image
 
@@ -30,6 +31,7 @@ __all__ = [
     "CharacterArtifactRecommendation",
     "Weapon",
     "Artifact",
+    "ArtifactSet",
     "Monster",
     "Image",
 ]
