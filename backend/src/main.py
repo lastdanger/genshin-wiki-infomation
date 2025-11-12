@@ -22,6 +22,7 @@ from src.api.health import router as health_router
 from src.api.characters import router as characters_router
 from src.api.weapons import router as weapons_router
 from src.api.artifacts import router as artifacts_router
+from src.api.artifact_sets import router as artifact_sets_router
 from src.api.monsters import router as monsters_router
 from src.api.game_mechanics import router as game_mechanics_router
 from src.api.images import router as images_router
@@ -228,6 +229,12 @@ app.include_router(
     artifacts_router,
     prefix="/api/artifacts",
     tags=["圣遗物 Artifacts"]
+)
+
+app.include_router(
+    artifact_sets_router,
+    prefix="/api/artifact-sets",
+    tags=["圣遗物套装 Artifact Sets"]
 )
 
 app.include_router(
