@@ -17,12 +17,12 @@ from src.models.character_skill import CharacterSkill
 from src.models.character_talent import CharacterTalent
 from src.models.weapon import Weapon
 from src.models.artifact import Artifact
-from src.models.artifact_piece import ArtifactPiece
+# from src.models.artifact_piece import ArtifactPiece
 from src.models.monster import Monster
-from src.models.game_mechanic import GameMechanic
-from src.models.image import Image
-from src.models.character_weapon_recommendation import CharacterWeaponRecommendation
-from src.models.character_artifact_recommendation import CharacterArtifactRecommendation
+# from src.models.game_mechanic import GameMechanic
+# from src.models.image import Image
+# from src.models.character_weapon_recommendation import CharacterWeaponRecommendation
+# from src.models.character_artifact_recommendation import CharacterArtifactRecommendation
 
 # 这是 Alembic Config 对象，它提供对值的访问
 # 在 .ini 文件中使用。

@@ -20,6 +20,7 @@ lxml==4.9.3
 # Caching and background tasks
 redis==5.0.1
 celery==5.3.4
+apscheduler==3.10.4
 
 # Development and testing
 pytest==7.4.3

@@ -29,6 +29,10 @@ from src.api.images import router as images_router
 from src.api.search import router as search_router
 from src.api.cache_stats import router as cache_router
 from src.api.scraper import router as scraper_router
+from src.api.scheduler import router as scheduler_router
+
+# 导入调度器服务
+from src.services.scheduler_service import scheduler_service
 
 settings = get_settings()
 logger = structlog.get_logger()
@@ -44,10 +48,18 @@ async def lifespan(app: FastAPI):
     await init_db()
     logger.info("数据库连接初始化完成")
 
+    # 启动定时任务调度器
+    scheduler_service.start()
+    logger.info("定时任务调度器已启动")
+
     yield
 
     # 关闭时清理
     logger.info("正在关闭API服务...")
+
+    # 关闭定时任务调度器
+    scheduler_service.shutdown()
+    logger.info("定时任务调度器已关闭")
 
 
 # API 文档描述
@@ -168,6 +180,10 @@ app = FastAPI(
         {
             "name": "爬虫 Scraper",
             "description": "**数据爬取管理**\n\n手动触发数据爬取、查看爬虫状态、爬取统计等。支持从多个数据源爬取角色、武器、圣遗物数据。",
+        },
+        {
+            "name": "定时任务 Scheduler",
+            "description": "**定时任务调度管理**\n\n配置和管理定时爬取任务、查看任务执行历史、手动触发任务等。支持 Cron 表达式和间隔执行两种调度方式。",
         }
     ]
 )
@@ -271,6 +287,12 @@ app.include_router(
     scraper_router,
     prefix="/api",
     tags=["爬虫 Scraper"]
+)
+
+app.include_router(
+    scheduler_router,
+    prefix="/api/scheduler",
+    tags=["定时任务 Scheduler"]
 )
 
 
