@@ -322,13 +322,13 @@ async def setup_default_jobs():
     设置默认定时任务
 
     创建默认的定时爬取任务配置：
-    - 武器数据：每天凌晨2点
-    - 圣遗物数据：每天凌晨3点
+    - 武器数据：每周日凌晨2点
+    - 圣遗物数据：每周日凌晨3点
     """
     try:
-        # 添加默认任务
-        scheduler_service.add_weapons_job(cron="0 2 * * *", job_id="weapons_daily")
-        scheduler_service.add_artifacts_job(cron="0 3 * * *", job_id="artifacts_daily")
+        # 添加默认任务（每周日执行）
+        scheduler_service.add_weapons_job(cron="0 2 * * 0", job_id="weapons_weekly")
+        scheduler_service.add_artifacts_job(cron="0 3 * * 0", job_id="artifacts_weekly")
 
         # 启动调度器
         if not scheduler_service.is_running():
