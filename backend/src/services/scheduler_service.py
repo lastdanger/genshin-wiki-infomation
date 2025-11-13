@@ -15,6 +15,7 @@ from apscheduler.job import Job
 from src.db.session import get_db
 from src.scrapers.weapon_scraper import WeaponScraper
 from src.scrapers.artifact_scraper import ArtifactScraper
+from src.scrapers.character_scraper import CharacterScraper
 from src.scrapers.data_storage import DataStorageService
 
 logger = logging.getLogger(__name__)
@@ -151,18 +152,74 @@ class SchedulerService:
                 "error": str(e)
             })
 
+    async def _scrape_characters_job(self):
+        """角色爬取任务"""
+        job_id = "scrape_characters"
+        start_time = datetime.now()
+
+        logger.info(f"[{job_id}] 开始执行角色爬取任务")
+
+        try:
+            # 初始化爬虫
+            scraper = CharacterScraper()
+            characters = await scraper.scrape()
+
+            # 存储到数据库
+            stats = {"created": 0, "updated": 0, "skipped": 0, "errors": 0}
+            if characters:
+                async for db in get_db():
+                    storage_service = DataStorageService(db)
+                    stats = await storage_service.store_characters(characters)
+                    break
+
+            elapsed = (datetime.now() - start_time).total_seconds()
+
+            # 记录历史
+            self._add_history({
+                "job_id": job_id,
+                "job_name": "角色数据爬取",
+                "start_time": start_time.isoformat(),
+                "end_time": datetime.now().isoformat(),
+                "elapsed_seconds": elapsed,
+                "status": "success",
+                "stats": {
+                    "scraped_count": len(characters),
+                    **stats
+                }
+            })
+
+            logger.info(f"[{job_id}] 任务完成 - 爬取: {len(characters)}, 新增: {stats['created']}, 更新: {stats['updated']}, 耗时: {elapsed:.2f}秒")
+
+        except Exception as e:
+            elapsed = (datetime.now() - start_time).total_seconds()
+            logger.error(f"[{job_id}] 任务失败: {str(e)}", exc_info=True)
+
+            # 记录失败历史
+            self._add_history({
+                "job_id": job_id,
+                "job_name": "角色数据爬取",
+                "start_time": start_time.isoformat(),
+                "end_time": datetime.now().isoformat(),
+                "elapsed_seconds": elapsed,
+                "status": "failed",
+                "error": str(e)
+            })
+
     async def _scrape_all_job(self):
-        """完整爬取任务（武器+圣遗物）"""
+        """完整爬取任务（角色+武器+圣遗物）"""
         job_id = "scrape_all"
         start_time = datetime.now()
 
         logger.info(f"[{job_id}] 开始执行完整爬取任务")
 
         try:
-            # 先爬取武器
+            # 先爬取角色
+            await self._scrape_characters_job()
+
+            # 再爬取武器
             await self._scrape_weapons_job()
 
-            # 再爬取圣遗物
+            # 最后爬取圣遗物
             await self._scrape_artifacts_job()
 
             elapsed = (datetime.now() - start_time).total_seconds()
@@ -223,6 +280,27 @@ class SchedulerService:
 
         logger.info(f"已添加圣遗物爬取定时任务: {job_id}, cron: {cron}")
 
+    def add_characters_job(self, cron: str = "0 4 * * *", job_id: str = "characters_daily"):
+        """
+        添加角色爬取定时任务
+
+        Args:
+            cron: Cron表达式，默认每天凌晨4点执行
+            job_id: 任务ID
+        """
+        trigger = CronTrigger.from_crontab(cron)
+
+        self.scheduler.add_job(
+            self._scrape_characters_job,
+            trigger=trigger,
+            id=job_id,
+            name="角色数据定时爬取",
+            replace_existing=True,
+            max_instances=1
+        )
+
+        logger.info(f"已添加角色爬取定时任务: {job_id}, cron: {cron}")
+
     def add_full_scrape_job(self, cron: str = "0 2 * * 0", job_id: str = "full_scrape_weekly"):
         """
         添加完整爬取定时任务
@@ -249,7 +327,7 @@ class SchedulerService:
         添加间隔执行任务
 
         Args:
-            job_type: 任务类型 (weapons/artifacts/all)
+            job_type: 任务类型 (characters/weapons/artifacts/all)
             hours: 间隔小时数
             job_id: 任务ID，默认自动生成
         """
@@ -259,6 +337,7 @@ class SchedulerService:
         trigger = IntervalTrigger(hours=hours)
 
         job_func_map = {
+            "characters": self._scrape_characters_job,
             "weapons": self._scrape_weapons_job,
             "artifacts": self._scrape_artifacts_job,
             "all": self._scrape_all_job
@@ -268,6 +347,7 @@ class SchedulerService:
             raise ValueError(f"Invalid job_type: {job_type}. Must be one of: {list(job_func_map.keys())}")
 
         job_name_map = {
+            "characters": "角色数据间隔爬取",
             "weapons": "武器数据间隔爬取",
             "artifacts": "圣遗物数据间隔爬取",
             "all": "完整数据间隔爬取"
@@ -355,9 +435,10 @@ class SchedulerService:
         立即执行一次任务（不影响定时任务）
 
         Args:
-            job_type: 任务类型 (weapons/artifacts/all)
+            job_type: 任务类型 (characters/weapons/artifacts/all)
         """
         job_func_map = {
+            "characters": self._scrape_characters_job,
             "weapons": self._scrape_weapons_job,
             "artifacts": self._scrape_artifacts_job,
             "all": self._scrape_all_job

@@ -143,7 +143,7 @@ async def create_job(job_data: JobCreate):
     """
     try:
         # 验证任务类型
-        valid_job_types = ["weapons", "artifacts", "all"]
+        valid_job_types = ["characters", "weapons", "artifacts", "all"]
         if job_data.job_type not in valid_job_types:
             raise HTTPException(
                 status_code=422,
@@ -156,7 +156,10 @@ async def create_job(job_data: JobCreate):
                 raise HTTPException(status_code=422, detail="使用cron调度时必须提供cron表达式")
 
             # 根据任务类型添加任务
-            if job_data.job_type == "weapons":
+            if job_data.job_type == "characters":
+                job_id = job_data.job_id or "characters_cron"
+                scheduler_service.add_characters_job(cron=job_data.cron, job_id=job_id)
+            elif job_data.job_type == "weapons":
                 job_id = job_data.job_id or "weapons_cron"
                 scheduler_service.add_weapons_job(cron=job_data.cron, job_id=job_id)
             elif job_data.job_type == "artifacts":
@@ -273,7 +276,7 @@ async def trigger_job(trigger_data: JobTrigger):
     立即执行一次爬取任务（不影响定时任务）
     """
     try:
-        valid_job_types = ["weapons", "artifacts", "all"]
+        valid_job_types = ["characters", "weapons", "artifacts", "all"]
         if trigger_data.job_type not in valid_job_types:
             raise HTTPException(
                 status_code=422,
@@ -322,11 +325,13 @@ async def setup_default_jobs():
     设置默认定时任务
 
     创建默认的定时爬取任务配置：
+    - 角色数据：每周日凌晨1点
     - 武器数据：每周日凌晨2点
     - 圣遗物数据：每周日凌晨3点
     """
     try:
         # 添加默认任务（每周日执行）
+        scheduler_service.add_characters_job(cron="0 1 * * 0", job_id="characters_weekly")
         scheduler_service.add_weapons_job(cron="0 2 * * 0", job_id="weapons_weekly")
         scheduler_service.add_artifacts_job(cron="0 3 * * 0", job_id="artifacts_weekly")
 

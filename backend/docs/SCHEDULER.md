@@ -15,14 +15,19 @@
 
 ## 默认任务
 
-系统默认配置了两个定时任务：
+系统默认配置了三个定时任务：
 
-1. **武器数据爬取** (`weapons_weekly`)
+1. **角色数据爬取** (`characters_weekly`)
+   - 执行时间：每周日凌晨 1:00
+   - Cron: `0 1 * * 0`
+   - 任务内容：爬取所有角色数据并更新数据库
+
+2. **武器数据爬取** (`weapons_weekly`)
    - 执行时间：每周日凌晨 2:00
    - Cron: `0 2 * * 0`
    - 任务内容：爬取所有武器数据并更新数据库
 
-2. **圣遗物数据爬取** (`artifacts_weekly`)
+3. **圣遗物数据爬取** (`artifacts_weekly`)
    - 执行时间：每周日凌晨 3:00
    - Cron: `0 3 * * 0`
    - 任务内容：爬取所有圣遗物套装数据并更新数据库
@@ -119,9 +124,10 @@ Content-Type: application/json
 ```
 
 **任务类型 (job_type):**
+- `characters` - 角色数据爬取
 - `weapons` - 武器数据爬取
 - `artifacts` - 圣遗物数据爬取
-- `all` - 完整爬取（武器 + 圣遗物）
+- `all` - 完整爬取（角色 + 武器 + 圣遗物）
 
 ### 5. 手动触发任务
 
@@ -255,7 +261,12 @@ curl -X POST http://localhost:8001/api/scheduler/jobs \
 ### 场景3：手动触发数据更新
 
 ```bash
-# 需要立即更新数据时
+# 立即更新角色数据
+curl -X POST http://localhost:8001/api/scheduler/jobs/trigger \
+  -H "Content-Type: application/json" \
+  -d '{"job_type": "characters"}'
+
+# 立即更新所有数据
 curl -X POST http://localhost:8001/api/scheduler/jobs/trigger \
   -H "Content-Type: application/json" \
   -d '{"job_type": "all"}'
@@ -333,14 +344,26 @@ async def _scrape_new_data_job(self):
         self._add_history({...})
 ```
 
-然后在 API 路由中添加对应的处理逻辑。
+然后在以下位置添加对应的处理逻辑：
+1. 在 `add_interval_job` 方法的 `job_func_map` 中添加新任务类型
+2. 在 `run_job_now` 方法的 `job_func_map` 中添加新任务类型
+3. 在 `src/api/scheduler.py` 中更新 `valid_job_types` 列表
+4. 在 `create_job` 端点中添加新任务类型的处理分支
 
 ### 修改默认任务配置
 
 编辑 `src/api/scheduler.py` 中的 `setup_default_jobs` 函数：
 
 ```python
+# 修改为每天执行
+scheduler_service.add_characters_job(cron="0 1 * * *", job_id="characters_daily")
 scheduler_service.add_weapons_job(cron="0 2 * * *", job_id="weapons_daily")
+scheduler_service.add_artifacts_job(cron="0 3 * * *", job_id="artifacts_daily")
+
+# 或修改为每周执行
+scheduler_service.add_characters_job(cron="0 1 * * 0", job_id="characters_weekly")
+scheduler_service.add_weapons_job(cron="0 2 * * 0", job_id="weapons_weekly")
+scheduler_service.add_artifacts_job(cron="0 3 * * 0", job_id="artifacts_weekly")
 ```
 
 修改 cron 表达式即可调整执行时间。
