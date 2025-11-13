@@ -267,6 +267,160 @@ GET /api/artifacts?page=1&per_page=20
 GET /api/artifacts/{artifact_id}
 ```
 
+## 💍 圣遗物套装 API
+
+### 获取圣遗物套装列表
+
+```http
+GET /api/artifact-sets?page=1&per_page=20
+```
+
+**查询参数:**
+- `page` (integer): 页码,默认 1
+- `per_page` (integer): 每页数量,默认 20,最大 100
+- `rarity` (integer): 稀有度筛选 (3, 4, 5)
+- `search` (string): 搜索关键词(套装名称)
+
+**示例请求:**
+```bash
+curl -X GET "http://localhost:8001/api/artifact-sets?rarity=5&page=1&per_page=10"
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "artifact_sets": [
+      {
+        "id": 1,
+        "set_name": "逆飞的流星",
+        "set_name_en": "Fragment of Harmonic Whimsy",
+        "max_rarity": 5,
+        "two_piece_bonus": "攻击力提高18%",
+        "four_piece_bonus": "施放元素战技后的8秒内,攻击力提升25%..."
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 10,
+      "total": 50,
+      "total_pages": 5,
+      "has_next": true,
+      "has_prev": false
+    }
+  },
+  "message": "成功获取10个圣遗物套装"
+}
+```
+
+### 获取圣遗物套装详情
+
+```http
+GET /api/artifact-sets/{set_id}
+```
+
+**路径参数:**
+- `set_id` (integer): 套装ID
+
+**示例请求:**
+```bash
+curl -X GET "http://localhost:8001/api/artifact-sets/1"
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "set_name": "逆飞的流星",
+    "set_name_en": "Fragment of Harmonic Whimsy",
+    "max_rarity": 5,
+    "two_piece_bonus": "攻击力提高18%",
+    "four_piece_bonus": "施放元素战技后的8秒内,攻击力提升25%...",
+    "source": "须弥「沙海守望台」秘境",
+    "pieces": [
+      {
+        "piece_name": "流星的巨蛋",
+        "piece_type": "Flower",
+        "main_stat": "生命值",
+        "icon_url": "..."
+      }
+    ]
+  },
+  "message": "成功获取圣遗物套装详情"
+}
+```
+
+### 根据套装名称获取详情
+
+```http
+GET /api/artifact-sets/name/{set_name}
+```
+
+**路径参数:**
+- `set_name` (string): 套装名称(中文或英文)
+
+**示例:**
+```bash
+curl -X GET "http://localhost:8001/api/artifact-sets/name/逆飞的流星"
+```
+
+### 按稀有度获取套装列表
+
+```http
+GET /api/artifact-sets/rarity/{rarity}?limit=50
+```
+
+**路径参数:**
+- `rarity` (integer): 稀有度 (3, 4, 5)
+
+**查询参数:**
+- `limit` (integer): 返回数量限制,默认 50
+
+**示例:**
+```bash
+curl -X GET "http://localhost:8001/api/artifact-sets/rarity/5?limit=20"
+```
+
+### 搜索圣遗物套装
+
+```http
+GET /api/artifact-sets/search/?q=keyword&limit=20
+```
+
+**查询参数:**
+- `q` (string, 必需): 搜索关键词
+- `limit` (integer): 返回数量限制,默认 20
+
+**示例:**
+```bash
+curl -X GET "http://localhost:8001/api/artifact-sets/search/?q=流星&limit=10"
+```
+
+### 获取套装统计信息
+
+```http
+GET /api/artifact-sets/stats/overview
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_artifact_sets": 50,
+    "by_rarity": {
+      "5": 38,
+      "4": 9,
+      "3": 3
+    }
+  },
+  "message": "成功获取圣遗物套装统计信息"
+}
+```
+
 ## 👾 怪物 API
 
 ### 获取怪物列表
@@ -302,7 +456,307 @@ GET /api/search?q=keyword&type=all
 
 **示例:**
 ```bash
-curl -X GET "http://localhost:8002/api/search?q=Diluc&type=character"
+curl -X GET "http://localhost:8001/api/search?q=Diluc&type=character"
+```
+
+## 🕷️ 爬虫 API
+
+### 触发武器爬取
+
+```http
+POST /api/scrape/weapons
+```
+
+**说明:** 手动触发武器数据爬取任务
+
+**示例请求:**
+```bash
+curl -X POST "http://localhost:8001/api/scrape/weapons"
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "scraped_count": 158,
+    "created": 5,
+    "updated": 153,
+    "skipped": 0,
+    "errors": 0
+  },
+  "message": "成功爬取158个武器数据"
+}
+```
+
+### 触发圣遗物爬取
+
+```http
+POST /api/scrape/artifacts
+```
+
+**说明:** 手动触发圣遗物数据爬取任务
+
+**示例:**
+```bash
+curl -X POST "http://localhost:8001/api/scrape/artifacts"
+```
+
+### 触发角色爬取
+
+```http
+POST /api/scrape/characters
+```
+
+**说明:** 手动触发角色数据爬取任务
+
+**示例:**
+```bash
+curl -X POST "http://localhost:8001/api/scrape/characters"
+```
+
+### 获取爬虫状态
+
+```http
+GET /api/scrape/status
+```
+
+**说明:** 获取当前爬虫任务的执行状态
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "is_running": false,
+    "last_run": "2025-11-13T10:30:00+08:00",
+    "tasks": {
+      "weapons": "completed",
+      "artifacts": "completed",
+      "characters": "idle"
+    }
+  }
+}
+```
+
+## ⏰ 定时任务调度 API
+
+### 获取调度器状态
+
+```http
+GET /api/scheduler/status
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "running": true,
+    "status": "running"
+  },
+  "message": "调度器运行中"
+}
+```
+
+### 设置默认定时任务
+
+```http
+POST /api/scheduler/setup/default
+```
+
+**说明:** 创建默认的每周定时爬取任务
+- 角色数据：每周日凌晨 1:00
+- 武器数据：每周日凌晨 2:00
+- 圣遗物数据：每周日凌晨 3:00
+
+**示例:**
+```bash
+curl -X POST "http://localhost:8001/api/scheduler/setup/default"
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "jobs": [
+      {
+        "id": "characters_weekly",
+        "name": "角色数据定时爬取",
+        "next_run_time": "2025-11-17T01:00:00+08:00",
+        "trigger": "cron[month='*', day='*', day_of_week='0', hour='1', minute='0']",
+        "pending": false
+      },
+      {
+        "id": "weapons_weekly",
+        "name": "武器数据定时爬取",
+        "next_run_time": "2025-11-17T02:00:00+08:00",
+        "trigger": "cron[month='*', day='*', day_of_week='0', hour='2', minute='0']",
+        "pending": false
+      },
+      {
+        "id": "artifacts_weekly",
+        "name": "圣遗物数据定时爬取",
+        "next_run_time": "2025-11-17T03:00:00+08:00",
+        "trigger": "cron[month='*', day='*', day_of_week='0', hour='3', minute='0']",
+        "pending": false
+      }
+    ],
+    "total": 3
+  },
+  "message": "成功设置默认定时任务"
+}
+```
+
+### 获取所有任务列表
+
+```http
+GET /api/scheduler/jobs
+```
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "jobs": [
+      {
+        "id": "weapons_weekly",
+        "name": "武器数据定时爬取",
+        "next_run_time": "2025-11-17T02:00:00+08:00",
+        "trigger": "cron[month='*', day='*', day_of_week='0', hour='2', minute='0']",
+        "pending": false
+      }
+    ],
+    "total": 1
+  },
+  "message": "成功获取1个任务"
+}
+```
+
+### 创建新任务
+
+```http
+POST /api/scheduler/jobs
+```
+
+**请求体 (Cron调度):**
+```json
+{
+  "job_type": "weapons",
+  "schedule_type": "cron",
+  "cron": "0 */6 * * *",
+  "job_id": "weapons_6h"
+}
+```
+
+**请求体 (间隔调度):**
+```json
+{
+  "job_type": "artifacts",
+  "schedule_type": "interval",
+  "interval_hours": 12,
+  "job_id": "artifacts_12h"
+}
+```
+
+**任务类型 (job_type):**
+- `characters` - 角色数据爬取
+- `weapons` - 武器数据爬取
+- `artifacts` - 圣遗物数据爬取
+- `all` - 完整爬取（角色 + 武器 + 圣遗物）
+
+**Cron表达式示例:**
+```
+0 2 * * *     # 每天凌晨2点
+0 */6 * * *   # 每6小时执行一次
+0 3 * * 0     # 每周日凌晨3点
+0 4 1 * *     # 每月1号凌晨4点
+0 9 * * 1-5   # 工作日早上9点
+```
+
+### 手动触发任务
+
+```http
+POST /api/scheduler/jobs/trigger
+```
+
+**请求体:**
+```json
+{
+  "job_type": "weapons"
+}
+```
+
+**说明:** 立即执行一次爬取任务，不影响定时任务的执行计划
+
+**示例:**
+```bash
+curl -X POST "http://localhost:8001/api/scheduler/jobs/trigger" \
+  -H "Content-Type: application/json" \
+  -d '{"job_type": "characters"}'
+```
+
+### 获取任务详情
+
+```http
+GET /api/scheduler/jobs/{job_id}
+```
+
+### 暂停任务
+
+```http
+POST /api/scheduler/jobs/{job_id}/pause
+```
+
+### 恢复任务
+
+```http
+POST /api/scheduler/jobs/{job_id}/resume
+```
+
+### 删除任务
+
+```http
+DELETE /api/scheduler/jobs/{job_id}
+```
+
+### 查看执行历史
+
+```http
+GET /api/scheduler/history?limit=20
+```
+
+**查询参数:**
+- `limit` (integer): 返回记录数量，默认 20，最大 100
+
+**示例响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "history": [
+      {
+        "job_id": "scrape_weapons",
+        "job_name": "武器数据爬取",
+        "start_time": "2025-11-13T02:00:00+08:00",
+        "end_time": "2025-11-13T02:05:32+08:00",
+        "elapsed_seconds": 332.5,
+        "status": "success",
+        "stats": {
+          "scraped_count": 158,
+          "created": 5,
+          "updated": 153,
+          "skipped": 0,
+          "errors": 0
+        }
+      }
+    ],
+    "total": 1
+  },
+  "message": "成功获取1条历史记录"
+}
 ```
 
 ## 🏥 系统 API
@@ -471,9 +925,11 @@ def get_character_detail(character_id):
 
 - **项目仓库**: https://github.com/lastdanger/genshin-wiki-infomation
 - **问题反馈**: https://github.com/lastdanger/genshin-wiki-infomation/issues
-- **API文档**: http://localhost:8002/api/docs
+- **API文档**: http://localhost:8001/api/docs
+- **调度器文档**: [SCHEDULER.md](./SCHEDULER.md)
+- **爬虫指南**: [SCRAPER_GUIDE.md](./SCRAPER_GUIDE.md)
 
 ---
 
-最后更新: 2025-11-07
+最后更新: 2025-11-13
 版本: v1.0.0
