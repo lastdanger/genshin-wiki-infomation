@@ -175,6 +175,7 @@ class WeaponScraper(BaseScraper):
             "description": None,
             "passive_name": None,
             "passive_description": None,
+            "passive_stats": None,
             "source": None,
         }
 
@@ -193,6 +194,9 @@ class WeaponScraper(BaseScraper):
             data_table = weapon_data_card.find("table", class_="YS-DataTable")
             if data_table:
                 self._extract_stats(data_table, data)
+
+        # 提取被动技能和精炼数据
+        self._extract_passive_skill(soup, data)
 
         # 提取描述
         self._extract_description(soup, data)
@@ -345,6 +349,182 @@ class WeaponScraper(BaseScraper):
         if match:
             name_en = match.group(1) or match.group(2)
             data["name_en"] = name_en.strip()
+
+    def _extract_passive_skill(self, soup: BeautifulSoup, data: Dict[str, Any]) -> None:
+        """
+        提取武器被动技能名称、描述和精炼数据
+
+        被动技能通常在card-title2 div中，格式为: "武器技能 - 技能名称"
+        精炼数据格式示例: 8%/10%/12%/14%/16% 或 28%/35%/42%/49%/56%
+        """
+        # 查找所有card-title2元素 (可能包含武器技能)
+        title_divs = soup.find_all("div", class_="card-title2")
+
+        for title_div in title_divs:
+            title_text = title_div.get_text(strip=True)
+
+            # 查找包含"武器技能"的标题
+            if "武器技能" in title_text:
+                # 提取技能名称
+                # 格式: "武器技能 - 西风之鹰的抗争"
+                skill_match = re.search(r'武器技能\s*[-－—]\s*(.+)', title_text)
+                if skill_match:
+                    skill_name = skill_match.group(1).strip()
+                    if skill_name and len(skill_name) < 50:
+                        data["passive_name"] = skill_name
+
+                # 查找紧随其后的div（包含技能描述）
+                next_div = title_div.find_next_sibling("div")
+                if next_div:
+                    desc_text = next_div.get_text(strip=True)
+
+                    # 检查是否包含精炼数值
+                    refinement_pattern = r'(\d+(?:\.\d+)?%?)(?:/\d+(?:\.\d+)?%?){4}'
+                    if re.search(refinement_pattern, desc_text):
+                        data["passive_description"] = desc_text[:500]  # 限制长度
+                        # 提取精炼数据
+                        data["passive_stats"] = self._parse_refinement_data(desc_text)
+                        break
+
+        # 如果没有从card-title2找到,尝试从YSCard查找
+        if not data.get("passive_description"):
+            self._extract_passive_from_yscard(soup, data)
+
+        # 最后尝试从页面主要内容区域查找
+        if not data.get("passive_description"):
+            self._extract_passive_from_content(soup, data)
+
+    def _parse_refinement_data(self, description: str) -> Dict[str, Any]:
+        """
+        从被动技能描述中解析精炼等级数据
+
+        精炼数据格式示例:
+        - "20%/25%/30%/35%/40%" -> refinement levels
+        - "0.8%/1%/1.2%/1.4%/1.6%" -> refinement levels
+        - "12秒/11秒/10秒/9秒/8秒" -> refinement levels
+        """
+        refinement_data = {"refinement_levels": []}
+
+        # 查找所有5值精炼数值模式
+        # 匹配格式: 数字/数字/数字/数字/数字(可能带%或秒等单位)
+        refinement_pattern = r'(\d+(?:\.\d+)?%?)(?:/\d+(?:\.\d+)?%?){4}'
+
+        matches = re.findall(refinement_pattern, description)
+
+        stat_index = 0
+        remaining_desc = description
+
+        for match_text in matches:
+            # 重新在剩余文本中查找完整匹配
+            full_match = re.search(refinement_pattern, remaining_desc)
+            if full_match:
+                full_text = full_match.group(0)
+                values = full_text.split('/')
+
+                if len(values) == 5:  # 确认是5个精炼等级
+                    # 创建精炼等级数据
+                    refinement_level = {
+                        "rank_1": values[0].strip(),
+                        "rank_2": values[1].strip(),
+                        "rank_3": values[2].strip(),
+                        "rank_4": values[3].strip(),
+                        "rank_5": values[4].strip(),
+                    }
+
+                    # 尝试识别这个数值的含义(从前后文)
+                    context_before = remaining_desc[:full_match.start()][-50:]
+                    stat_name = self._guess_stat_name(context_before, values[0])
+                    if stat_name:
+                        refinement_level["stat_name"] = stat_name
+
+                    refinement_data["refinement_levels"].append(refinement_level)
+                    stat_index += 1
+
+                    # 移除已匹配的部分以继续查找其他数值
+                    remaining_desc = remaining_desc[full_match.end():]
+                else:
+                    break
+
+        # 如果找到精炼数据,添加到主字典中
+        if refinement_data["refinement_levels"]:
+            return refinement_data
+
+        return {}
+
+    def _guess_stat_name(self, context: str, first_value: str) -> Optional[str]:
+        """根据上下文推测数值的含义"""
+        # 常见的属性关键词映射
+        stat_keywords = {
+            "生命值": "hp",
+            "攻击力": "atk",
+            "防御力": "def",
+            "暴击率": "crit_rate",
+            "暴击伤害": "crit_dmg",
+            "元素充能": "energy_recharge",
+            "元素精通": "elemental_mastery",
+            "伤害加成": "dmg_bonus",
+            "伤害提升": "dmg_bonus",
+            "持续时间": "duration",
+            "冷却时间": "cooldown",
+        }
+
+        for keyword, stat_name in stat_keywords.items():
+            if keyword in context:
+                return stat_name
+
+        # 根据单位推测
+        if '秒' in first_value:
+            return "duration"
+        elif '%' in first_value:
+            return "percentage"
+
+        return None
+
+    def _extract_passive_from_yscard(self, soup: BeautifulSoup, data: Dict[str, Any]) -> None:
+        """从YSCard元素中提取被动技能信息（后备方案）"""
+        ys_cards = soup.find_all("div", class_="YSCard")
+
+        for card in ys_cards:
+            card_text = card.get_text(strip=True)
+
+            # 查找包含"武器技能"的文本
+            if "武器技能" in card_text or "被动" in card_text:
+                # 提取技能名称
+                skill_match = re.search(r'武器技能\s*[-－—]\s*([^\n]+)', card_text)
+                if skill_match and not data.get("passive_name"):
+                    skill_name = skill_match.group(1).strip()
+                    # 移除可能的属性文本
+                    skill_name = re.sub(r'(攻击力|生命值|暴击|元素|伤害|效果).*', '', skill_name).strip()
+                    if skill_name and len(skill_name) < 50:
+                        data["passive_name"] = skill_name
+
+                # 查找包含精炼数值的描述
+                refinement_pattern = r'(\d+(?:\.\d+)?%?)(?:/\d+(?:\.\d+)?%?){4}'
+                if re.search(refinement_pattern, card_text):
+                    # 提取技能描述部分
+                    desc_match = re.search(r'武器技能\s*[-－—]\s*[^\n]*\n?(.*?)(?=技能解析|武器介绍|武器类型|实装版本|\Z)', card_text, re.DOTALL)
+                    if desc_match:
+                        desc_text = desc_match.group(1).strip()
+                        data["passive_description"] = desc_text[:500]
+                        data["passive_stats"] = self._parse_refinement_data(desc_text)
+                        break
+
+    def _extract_passive_from_content(self, soup: BeautifulSoup, data: Dict[str, Any]) -> None:
+        """从页面主要内容区域提取被动技能信息（最后的后备方案）"""
+        content_div = soup.find("div", class_="mw-parser-output")
+        if not content_div:
+            return
+
+        # 查找所有段落
+        paragraphs = content_div.find_all("p", recursive=False)
+        for p in paragraphs:
+            text = p.get_text(strip=True)
+            # 寻找包含精炼数值的段落
+            if re.search(r'\d+(?:\.\d+)?%/\d+(?:\.\d+)?%', text) and len(text) > 30:
+                if not data.get("passive_description"):
+                    data["passive_description"] = text
+                    data["passive_stats"] = self._parse_refinement_data(text)
+                    break
 
     def get_stats(self) -> Dict[str, Any]:
         """Get scraping statistics."""
